@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    volumes:
+      - ./.db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: osmopub_user
+      POSTGRES_PASSWORD: osmopub123
+      POSTGRES_DB: osmopub
+    ports:
+      - "7432:5432"

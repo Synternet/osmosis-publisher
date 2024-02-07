@@ -1,0 +1,12 @@
+*.json
+*.pem
+*.key
+*.creds
+*.nkey
+*.jwt
+.env
+dist/
+build/
+.db_data
+.data.sql
+.data.sql-journal
