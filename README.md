@@ -96,7 +96,7 @@ services:
       - DB_HOST=db.sqlite
       - DB_NAME=sqlite
     volumes:
-      - osmodata:/home/app/postgres:ro
+      - osmodata:/home/app/db.sqlite:ro
 volumes:
   osmodata:
     external: true
