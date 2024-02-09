@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/repository"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
 )
 
 var tokenMapping = map[string]float64{

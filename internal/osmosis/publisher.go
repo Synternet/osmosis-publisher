@@ -8,13 +8,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	indexerimpl "github.com/SyntropyNet/osmosis-publisher/internal/indexer"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/indexer"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/types"
 	"github.com/nats-io/nats.go"
 	"github.com/syntropynet/data-layer-sdk/pkg/options"
 	"github.com/syntropynet/data-layer-sdk/pkg/service"
-	indexerimpl "gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/internal/indexer"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/indexer"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/repository"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/types"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 )
