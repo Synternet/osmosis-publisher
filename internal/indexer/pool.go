@@ -109,7 +109,8 @@ func (d *Indexer) preHeatPools(blocks uint64) {
 
 func (d *Indexer) poolsPrune(minHeight uint64) {
 	d.pools.Prune(minHeight)
-	// TODO: cleanup database too
+
+	d.repo.PrunePools(minHeight)
 }
 
 func (d *Indexer) PoolStatusesAt(height uint64, poolId ...uint64) ([]types.PoolStatus, uint64, error) {

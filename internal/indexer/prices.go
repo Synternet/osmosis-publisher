@@ -163,7 +163,7 @@ func (d *Indexer) pricesPrune(minHeight uint64) {
 	minLastUpdated := time.Unix(0, d.lastBlockTimestamp.Load()-(int64(time.Hour)*delta)/d.blocksPerHour.Load())
 	d.prices.Prune(minLastUpdated)
 
-	// TODO: cleanup database too
+	d.repo.PruneTokenPrices(minLastUpdated)
 }
 
 func convertToMicroToken(token string, value float64) (string, float64, bool) {

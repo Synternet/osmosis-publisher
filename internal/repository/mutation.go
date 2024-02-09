@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	_ "github.com/lib/pq"
 	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/repository"
@@ -36,6 +38,18 @@ func (r *Repository) SavePool(pool repository.Pool) error {
 		Liquidity: pool.Liquidity.String(),
 		Volume:    pool.Volume.String(),
 	}
-	result := r.dbCon.Clauses(clause.OnConflict{DoNothing: true}).Model(&Pool{}).Create(&newPool)
+	result := r.dbCon.Clauses(clause.OnConflict{DoUpdates: clause.AssignmentColumns([]string{"liquidity", "volume", "timestamp"})}).Model(&Pool{}).Create(&newPool)
 	return result.Error
+}
+
+// PruneTokenPrices will remove all token prices prior timestamp.
+func (r *Repository) PruneTokenPrices(timestamp time.Time) (int, error) {
+	result := r.dbCon.Model(&TokenPrice{}).Delete(&TokenPrice{}, "last_updated < ?", timestamp.UnixNano())
+	return int(result.RowsAffected), result.Error
+}
+
+// PrunePools will remove all pools prior block height.
+func (r *Repository) PrunePools(height uint64) (int, error) {
+	result := r.dbCon.Model(&Pool{}).Delete(&Pool{}, "height < ?", height)
+	return int(result.RowsAffected), result.Error
 }

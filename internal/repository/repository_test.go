@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	_ "github.com/lib/pq"
 	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/internal/repository"
@@ -343,6 +344,31 @@ func TestRepository_TokenPrice(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "prune",
+			f: func(db *repository.Repository, t *testing.T) error {
+				numDeleted, err := db.PruneTokenPrices(time.Unix(TimestampBaseOsmo, 0).Add(time.Second * 5))
+				if err != nil {
+					return fmt.Errorf("PruneTokenPrices failed: %w", err)
+				}
+				if numDeleted != 6 {
+					return fmt.Errorf("unexpected PruneTokenPrices deleted rows want=%d got %d", 6, numDeleted)
+				}
+				prices, err := db.TokenPricesRange(time.Unix(TimestampBaseOsmo, 0).Add(time.Second), time.Unix(TimestampBaseOsmo, 0).Add(time.Second*6), "")
+				if err != nil {
+					return fmt.Errorf("TokenPricesRange failed: %w", err)
+				}
+				if len(prices) != 2 {
+					return fmt.Errorf("wrong number of records: %v", prices)
+				}
+				if prices[0].Name != "ATOM" && prices[1].Name != "OSMO" {
+					return fmt.Errorf("unexpected prices: %v", prices)
+				}
+
+				return nil
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -352,6 +378,133 @@ func TestRepository_TokenPrice(t *testing.T) {
 			err := tt.f(db, t)
 			if (tt.wantErr && err == nil) || (!tt.wantErr && err != nil) {
 				t.Errorf("TokenPrice test wantErr = %v, err %v", tt.wantErr, err)
+			}
+		})
+	}
+}
+
+func TestRepository_Pools(t *testing.T) {
+	tests := []struct {
+		name    string
+		f       func(db *repository.Repository, t *testing.T) error
+		wantErr bool
+	}{
+		{
+			name: "range",
+			f: func(db *repository.Repository, t *testing.T) error {
+				pools, err := db.PoolsRange(2, 3, 1)
+				if err != nil {
+					return fmt.Errorf("PoolsRange failed: %w", err)
+				}
+				if len(pools) != 2 {
+					return fmt.Errorf("wrong number of records: %v", pools)
+				}
+				if pools[0].Height != 2 || pools[1].Height != 3 {
+					return fmt.Errorf("wrong records: %v", pools)
+				}
+				return nil
+			},
+			wantErr: false,
+		},
+		{
+			name: "range all",
+			f: func(db *repository.Repository, t *testing.T) error {
+				err := db.SavePool(
+					repotypes.Pool{
+						Height:    2,
+						PoolId:    15,
+						Liquidity: must(sdk.ParseCoinsNormalized("10stake")),
+						Volume:    must(sdk.ParseCoinsNormalized("100500uosmo")),
+					},
+				)
+				if err != nil {
+					return err
+				}
+				pools, err := db.PoolsRange(0, 3, 0)
+				if err != nil {
+					return fmt.Errorf("PoolsRange failed: %w", err)
+				}
+				if len(pools) != 4 {
+					return fmt.Errorf("wrong number of records: %v", pools)
+				}
+				return nil
+			},
+			wantErr: false,
+		},
+		{
+			name: "404 pool",
+			f: func(db *repository.Repository, t *testing.T) error {
+				pool, found := db.LatestPool(7)
+				if found {
+					return fmt.Errorf("found %v", pool)
+				}
+				return nil
+			},
+			wantErr: false,
+		},
+		{
+			name: "add same",
+			f: func(db *repository.Repository, t *testing.T) error {
+				err := db.SavePool(
+					repotypes.Pool{
+						Height:    3,
+						PoolId:    1,
+						Liquidity: must(sdk.ParseCoinsNormalized("101stake")),
+						Volume:    must(sdk.ParseCoinsNormalized("15uosmo")),
+					},
+				)
+				if err != nil {
+					return err
+				}
+
+				pool, found := db.LatestPool(1)
+				if !found {
+					return fmt.Errorf("not found")
+				}
+				if pool.Height != 3 {
+					return fmt.Errorf("found %v instead", pool)
+				}
+				if pool.Volume.String() != "15uosmo" {
+					return fmt.Errorf("found %v instead", pool)
+				}
+				if pool.Liquidity.String() != "101stake" {
+					return fmt.Errorf("found %v instead", pool)
+				}
+				return nil
+			},
+			wantErr: false,
+		},
+		{
+			name: "prune",
+			f: func(db *repository.Repository, t *testing.T) error {
+				_, err := db.PrunePools(3)
+				if err != nil {
+					return fmt.Errorf("PrunePools failed: %w", err)
+				}
+				pools, err := db.PoolsRange(0, 10, 1)
+				if err != nil {
+					return fmt.Errorf("PoolsRange failed: %w", err)
+				}
+				if len(pools) != 1 {
+					return fmt.Errorf("wrong number of records: %v", pools)
+				}
+				if pools[0].PoolId != 1 {
+					return fmt.Errorf("unexpected pools: %v", pools)
+				}
+
+				return nil
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db := makeDB()
+			addPools(db)
+
+			err := tt.f(db, t)
+			if (tt.wantErr && err == nil) || (!tt.wantErr && err != nil) {
+				t.Errorf("Pools test wantErr = %v, err %v", tt.wantErr, err)
 			}
 		})
 	}
