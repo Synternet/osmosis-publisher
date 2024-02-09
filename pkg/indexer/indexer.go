@@ -3,8 +3,8 @@ package indexer
 import (
 	"time"
 
+	"github.com/SyntropyNet/osmosis-publisher/pkg/types"
 	ibctypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/types"
 )
 
 type Indexer interface {

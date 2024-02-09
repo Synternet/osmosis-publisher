@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/repository"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/types"
 )
 
 func TestIndexer_fetchVolumeValuesPerBlockRange(t *testing.T) {

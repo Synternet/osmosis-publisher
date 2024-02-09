@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"strconv"
 
+	"github.com/SyntropyNet/osmosis-publisher/internal/osmosis"
 	"github.com/spf13/cobra"
 	"github.com/syntropynet/data-layer-sdk/pkg/service"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/internal/osmosis"
 )
 
 var (

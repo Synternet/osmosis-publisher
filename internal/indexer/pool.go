@@ -6,8 +6,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/repository"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/types"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/types"
 )
 
 type PoolMap struct {

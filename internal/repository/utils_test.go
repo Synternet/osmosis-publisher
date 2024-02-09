@@ -3,10 +3,10 @@ package repository_test
 import (
 	"time"
 
+	"github.com/SyntropyNet/osmosis-publisher/internal/repository"
+	"github.com/SyntropyNet/osmosis-publisher/internal/repository/sqlite"
+	repotypes "github.com/SyntropyNet/osmosis-publisher/pkg/repository"
 	_ "github.com/lib/pq"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/internal/repository"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/internal/repository/sqlite"
-	repotypes "gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/repository"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"

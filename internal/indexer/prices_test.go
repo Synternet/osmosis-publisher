@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/repository"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
 )
 
 func TestPriceMap_Set(t *testing.T) {

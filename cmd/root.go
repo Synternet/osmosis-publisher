@@ -12,9 +12,9 @@ import (
 	"github.com/syntropynet/data-layer-sdk/pkg/options"
 	"gorm.io/gorm"
 
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/internal/repository"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/internal/repository/pg"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/internal/repository/sqlite"
+	"github.com/SyntropyNet/osmosis-publisher/internal/repository"
+	"github.com/SyntropyNet/osmosis-publisher/internal/repository/pg"
+	"github.com/SyntropyNet/osmosis-publisher/internal/repository/sqlite"
 )
 
 var (

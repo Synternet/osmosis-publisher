@@ -5,10 +5,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/SyntropyNet/osmosis-publisher/pkg/indexer"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
+	"github.com/SyntropyNet/osmosis-publisher/pkg/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/indexer"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/repository"
-	"gitlab.com/syntropynet/amberdm/publisher/osmosis-publisher/pkg/types"
 	"golang.org/x/sync/errgroup"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
