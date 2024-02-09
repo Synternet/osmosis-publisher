@@ -27,12 +27,15 @@ type Repository interface {
 	// PoolsRange will return a list of available pools from minimum to maximum heights
 	PoolsRange(minHeight, maxHeight, poolId uint64) ([]Pool, error)
 
+	// TokenPriceRange will return stored token prices between and including min/max timestamps
 	TokenPricesRange(min, max time.Time, denom string) ([]TokenPrice, error)
-
-	// CalculateVolume(poolId uint64, latestHeight uint64, period time.Duration) (CalculatedVolume, bool)
-	// MissingPools(heightStart, heightEnd uint64) []MissingPool
 
 	SaveIBCDenom(IBCTypes.DenomTrace) error
 	SaveTokenPrice(TokenPrice) error
 	SavePool(Pool) error
+
+	// PruneTokenPrices will remove all token prices prior timestamp.
+	PruneTokenPrices(timestamp time.Time) (int, error)
+	// PrunePools will remove all pools prior block height.
+	PrunePools(height uint64) (int, error)
 }
