@@ -19,6 +19,7 @@ var (
 	flagGRPCAPI       *string
 	flagPricesSubject *string
 	flagBlocks        *uint64
+	flagPoolIds       *PoolIds
 )
 
 // startCmd represents the nft command
@@ -29,15 +30,6 @@ var startCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 		defer stop()
-
-		poolIdsSigned, _ := cmd.Flags().GetInt64Slice("pool-ids")
-		poolIds := make([]uint64, len(poolIdsSigned))
-		for i, id := range poolIdsSigned {
-			if id < 0 {
-				log.Fatal("Pool ID cannot be negative: ", id, "at", i)
-			}
-			poolIds[i] = uint64(id)
-		}
 
 		publisher := osmosis.New(
 			database,
@@ -54,7 +46,7 @@ var startCmd = &cobra.Command{
 			osmosis.WithTendermintAPI(*flagTendermintAPI),
 			osmosis.WithRPCAPI(*flagRPCAPI),
 			osmosis.WithGRPCAPI(*flagGRPCAPI),
-			osmosis.WithPoolIds(poolIds),
+			osmosis.WithPoolIds(*flagPoolIds.value),
 			osmosis.WithBlocksToIndex(*flagBlocks),
 			osmosis.WithPriceSubject(*flagPricesSubject),
 		)
@@ -97,29 +89,18 @@ func init() {
 	setDefault(OSMOSIS_BLOCKS, "20000")
 	setDefault(PRICES_SUBJECT, "syntropy_defi.price.single.OSMO")
 
-	flagPublisherName = startCmd.Flags().String("publisher-name", os.Getenv(OSMOSIS_NAME), "NATS publisher name as in {prefix}.{name}.>")
-	flagTendermintAPI = startCmd.Flags().String("tendermint-api", os.Getenv(OSMOSIS_TENDERMINT), "Full address to the Tendermint RPC")
-	flagRPCAPI = startCmd.Flags().String("app-api", os.Getenv(OSMOSIS_RPC), "Full address to the Applications RPC")
-	flagGRPCAPI = startCmd.Flags().String("grpc-api", os.Getenv(OSMOSIS_GRPC), "Full address to the Applications gRPC")
+	f := startCmd.Flags()
+	flagPublisherName = f.String("publisher-name", os.Getenv(OSMOSIS_NAME), "NATS publisher name as in {prefix}.{name}.>")
+	flagTendermintAPI = f.String("tendermint-api", os.Getenv(OSMOSIS_TENDERMINT), "Full address to the Tendermint RPC")
+	flagRPCAPI = f.String("app-api", os.Getenv(OSMOSIS_RPC), "Full address to the Applications RPC")
+	flagGRPCAPI = f.String("grpc-api", os.Getenv(OSMOSIS_GRPC), "Full address to the Applications gRPC")
+	flagPricesSubject = f.String("prices-subject", os.Getenv(PRICES_SUBJECT), "Subject for prices feed to subscribe to")
+	flagPoolIds = f.VarPF(NewPoolIds(os.Getenv(OSMOSIS_POOLS)), "pool-ids", "", "A list of Osmosis pools to stream volume and liquidity each block").Value.(*PoolIds)
 
-	flagPricesSubject = startCmd.Flags().String("prices-subject", os.Getenv(PRICES_SUBJECT), "Subject for prices feed to subscribe to")
-
-	pools := SplitAndTrimEmpty(os.Getenv(OSMOSIS_POOLS), ",", " \t\r\n\b")
-	dp := make([]int64, len(pools))
-	for i, p := range pools {
-		val, err := strconv.ParseInt(p, 10, 64)
-		if err != nil {
-			log.Fatal(err)
-		}
-		dp[i] = val
-	}
-	startCmd.Flags().Int64Slice("pool-ids", dp, "A list of Osmosis pools to stream volume and liquidity each block")
-
-	envBlocks := os.Getenv(OSMOSIS_BLOCKS)
-	blocks, err := strconv.ParseUint(envBlocks, 10, 64)
+	blocks, err := strconv.ParseUint(os.Getenv(OSMOSIS_BLOCKS), 10, 64)
 	if err != nil {
 		blocks = 17000
 		log.Println("Bad number of blocks format: ", err)
 	}
-	flagBlocks = startCmd.Flags().Uint64("blocks-to-index", blocks, "Number of previous blocks to keep track of")
+	flagBlocks = f.Uint64("blocks-to-index", blocks, "Number of previous blocks to keep track of")
 }
