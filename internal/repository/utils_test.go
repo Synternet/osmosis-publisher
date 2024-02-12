@@ -3,9 +3,9 @@ package repository_test
 import (
 	"time"
 
-	"github.com/SyntropyNet/osmosis-publisher/internal/repository"
-	"github.com/SyntropyNet/osmosis-publisher/internal/repository/sqlite"
-	repotypes "github.com/SyntropyNet/osmosis-publisher/pkg/repository"
+	"github.com/syntropynet/osmosis-publisher/internal/repository"
+	"github.com/syntropynet/osmosis-publisher/internal/repository/sqlite"
+	repotypes "github.com/syntropynet/osmosis-publisher/pkg/repository"
 	_ "github.com/lib/pq"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"

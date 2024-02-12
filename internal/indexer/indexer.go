@@ -5,9 +5,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/SyntropyNet/osmosis-publisher/pkg/indexer"
-	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
-	"github.com/SyntropyNet/osmosis-publisher/pkg/types"
+	"github.com/syntropynet/osmosis-publisher/pkg/indexer"
+	"github.com/syntropynet/osmosis-publisher/pkg/repository"
+	"github.com/syntropynet/osmosis-publisher/pkg/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"golang.org/x/sync/errgroup"
 
