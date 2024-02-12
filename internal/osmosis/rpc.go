@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
-	"github.com/SyntropyNet/osmosis-publisher/pkg/types"
+	"github.com/syntropynet/osmosis-publisher/pkg/repository"
+	"github.com/syntropynet/osmosis-publisher/pkg/types"
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"

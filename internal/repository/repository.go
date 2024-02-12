@@ -3,7 +3,7 @@ package repository
 import (
 	"fmt"
 
-	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
+	"github.com/syntropynet/osmosis-publisher/pkg/repository"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm"
 )

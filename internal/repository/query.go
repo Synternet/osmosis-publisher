@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/SyntropyNet/osmosis-publisher/pkg/repository"
+	"github.com/syntropynet/osmosis-publisher/pkg/repository"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	_ "github.com/lib/pq"

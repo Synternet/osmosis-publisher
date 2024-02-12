@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"strconv"
 
-	"github.com/SyntropyNet/osmosis-publisher/internal/osmosis"
+	"github.com/syntropynet/osmosis-publisher/internal/osmosis"
 	"github.com/spf13/cobra"
 	"github.com/syntropynet/data-layer-sdk/pkg/service"
 )

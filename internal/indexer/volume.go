@@ -7,7 +7,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/SyntropyNet/osmosis-publisher/pkg/types"
+	"github.com/syntropynet/osmosis-publisher/pkg/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"golang.org/x/exp/maps"
 )
