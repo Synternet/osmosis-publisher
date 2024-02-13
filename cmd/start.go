@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"github.com/SyntropyNet/osmosis-publisher/cmd/flags"
 	"log"
 	"os"
 	"os/signal"
@@ -19,7 +20,7 @@ var (
 	flagGRPCAPI       *string
 	flagPricesSubject *string
 	flagBlocks        *uint64
-	flagPoolIds       *PoolIds
+	flagPoolIds       *flags.PoolIds
 )
 
 // startCmd represents the nft command
@@ -30,7 +31,7 @@ var startCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 		defer stop()
-
+		
 		publisher := osmosis.New(
 			database,
 			service.WithContext(ctx),
@@ -46,7 +47,7 @@ var startCmd = &cobra.Command{
 			osmosis.WithTendermintAPI(*flagTendermintAPI),
 			osmosis.WithRPCAPI(*flagRPCAPI),
 			osmosis.WithGRPCAPI(*flagGRPCAPI),
-			osmosis.WithPoolIds(*flagPoolIds.value),
+			osmosis.WithPoolIds(*flagPoolIds.Value),
 			osmosis.WithBlocksToIndex(*flagBlocks),
 			osmosis.WithPriceSubject(*flagPricesSubject),
 		)
@@ -95,11 +96,11 @@ func init() {
 	flagRPCAPI = f.String("app-api", os.Getenv(OSMOSIS_RPC), "Full address to the Applications RPC")
 	flagGRPCAPI = f.String("grpc-api", os.Getenv(OSMOSIS_GRPC), "Full address to the Applications gRPC")
 	flagPricesSubject = f.String("prices-subject", os.Getenv(PRICES_SUBJECT), "Subject for prices feed to subscribe to")
-	flagPoolIds = f.VarPF(NewPoolIds(os.Getenv(OSMOSIS_POOLS)), "pool-ids", "", "A list of Osmosis pools to stream volume and liquidity each block").Value.(*PoolIds)
+	flagPoolIds = f.VarPF(flags.NewPoolIds(os.Getenv(OSMOSIS_POOLS)), "pool-ids", "", "A list of Osmosis pools to stream volume and liquidity each block").Value.(*flags.PoolIds)
 
 	blocks, err := strconv.ParseUint(os.Getenv(OSMOSIS_BLOCKS), 10, 64)
 	if err != nil {
-		blocks = 17000
+		blocks = 20000
 		log.Println("Bad number of blocks format: ", err)
 	}
 	flagBlocks = f.Uint64("blocks-to-index", blocks, "Number of previous blocks to keep track of")
