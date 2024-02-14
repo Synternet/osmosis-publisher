@@ -1,12 +1,13 @@
 package repository_test
 
 import (
+	"log/slog"
 	"time"
 
+	_ "github.com/lib/pq"
 	"github.com/syntropynet/osmosis-publisher/internal/repository"
 	"github.com/syntropynet/osmosis-publisher/internal/repository/sqlite"
 	repotypes "github.com/syntropynet/osmosis-publisher/pkg/repository"
-	_ "github.com/lib/pq"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
@@ -17,7 +18,7 @@ func makeDB() *repository.Repository {
 	if err != nil {
 		panic(err)
 	}
-	repo, err := repository.New(db)
+	repo, err := repository.New(db, slog.Default())
 	if err != nil {
 		panic(err)
 	}

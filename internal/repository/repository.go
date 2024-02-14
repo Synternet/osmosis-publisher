@@ -2,21 +2,24 @@ package repository
 
 import (
 	"fmt"
+	"log/slog"
 
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
 	_ "github.com/lib/pq"
+	"github.com/syntropynet/osmosis-publisher/pkg/repository"
 	"gorm.io/gorm"
 )
 
 var _ repository.Repository = (*Repository)(nil)
 
 type Repository struct {
-	dbCon *gorm.DB
+	logger *slog.Logger
+	dbCon  *gorm.DB
 }
 
-func New(db *gorm.DB) (*Repository, error) {
+func New(db *gorm.DB, logger *slog.Logger) (*Repository, error) {
 	ret := &Repository{
-		dbCon: db,
+		logger: logger,
+		dbCon:  db,
 	}
 
 	// Create tables for data structures (if table already exists it will not be overwritten)

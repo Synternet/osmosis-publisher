@@ -2,7 +2,6 @@ package osmosis
 
 import (
 	"encoding/json"
-	"log"
 	"strings"
 	"time"
 
@@ -23,7 +22,7 @@ func (p *Publisher) handlePriceFeed(msg service.Message) {
 	var quote cmc.QuoteInfo
 	err := json.Unmarshal(msg.Data(), &quote)
 	if err != nil {
-		log.Println("ERR: Bogus PRICE message: ", err)
+		p.Logger.Error("Bogus PRICE message", err)
 		return
 	}
 
@@ -31,9 +30,9 @@ func (p *Publisher) handlePriceFeed(msg service.Message) {
 
 	err = p.indexer.SetLatestPrice(parts[len(parts)-1], "USD", quote.Price, time.Unix(quote.LastUpdated, 0))
 	if err != nil {
-		log.Println("ERR: Failed indexing price: ", err)
+		p.Logger.Error("Failed indexing price: ", err)
 		return
 	}
 
-	log.Printf("PRICE: %s:  %v", msg.Subject(), quote)
+	p.Logger.Debug("PRICE", "subject", msg.Subject(), "quote", quote)
 }

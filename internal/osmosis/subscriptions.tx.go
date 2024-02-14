@@ -3,7 +3,6 @@ package osmosis
 import (
 	"encoding/hex"
 	"fmt"
-	"log"
 	"time"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -20,11 +19,11 @@ func (p *Publisher) handleTransactions(events <-chan ctypes.ResultEvent) error {
 	for {
 		select {
 		case <-p.Context.Done():
-			log.Println("handleTransactions: c.Context Done")
+			p.Logger.Info("handleTransactions: c.Context Done")
 			return nil
 		case ev, ok := <-events:
 			if !ok {
-				log.Println("handleTransactions: events closed")
+				p.Logger.Info("handleTransactions: events closed")
 				return nil
 			}
 
@@ -51,5 +50,5 @@ func (p *Publisher) handleTransaction(data tmtypes.EventDataTx, queueSize int) {
 		tx,
 		"tx",
 	)
-	log.Println("Transaction: ", tx.TxID, extractTxMessageNames(tx), "; queue: ", queueSize)
+	p.Logger.Debug("Transaction", "txID", tx.TxID, "names", extractTxMessageNames(tx), "queue_size", queueSize)
 }

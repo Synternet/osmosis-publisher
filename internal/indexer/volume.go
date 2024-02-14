@@ -2,13 +2,12 @@ package indexer
 
 import (
 	"errors"
-	"log"
 	"math/big"
 	"slices"
 	"time"
 
-	"github.com/syntropynet/osmosis-publisher/pkg/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/syntropynet/osmosis-publisher/pkg/types"
 	"golang.org/x/exp/maps"
 )
 
@@ -59,9 +58,7 @@ func (d *Indexer) calculateVolumeValueAt(height int64, coins sdk.Coins) []float6
 	for i, coin := range coins {
 		value, durationError := d.prices.Estimate(timestamp, coin.Denom)
 		if abs(durationError) > time.Hour*24 {
-			if d.verbose {
-				log.Printf("WARNING: %s price at %v duration error too large: %v", coin.Denom, timestamp, durationError)
-			}
+			d.logger.Debug("VOLUME: duration error too large", "denom", coin.Denom, "timestamp", timestamp, "duration", durationError)
 			continue
 		}
 
@@ -108,7 +105,7 @@ func (d *Indexer) calculateRelativeVolumeValue(poolId uint64, volumes []types.Po
 	// We assume that pool volumes are only in uosmo. However, technically, it can be a list of coins.
 	uosmoVP, found := vpm[BaseVolumeDenom]
 	if !found || len(uosmoVP) == 0 {
-		log.Printf("VOLUME: No prices were found for %s: %v", BaseVolumeDenom, maps.Keys(vpm))
+		d.logger.Warn("VOLUME: No prices were found", "denom", BaseVolumeDenom, "keys", maps.Keys(vpm))
 		return nil
 	}
 
@@ -180,7 +177,7 @@ type priceAt struct {
 }
 
 func (d *Indexer) fetchVolumeValuesPerBlockRange(min, max, poolId uint64) map[string][]priceAt {
-	log.Printf("VOLUME: fetchVolumeValuesPerBlockRange poolId=%d min=%d max=%d range=%d", poolId, min, max, max-min)
+	d.logger.Debug("VOLUME: fetchVolumeValuesPerBlockRange", "poolId", poolId, "min", min, "max", max, "range", max-min)
 	vm := make(map[string][]priceAt)
 	for blockHeight := min; blockHeight <= max; blockHeight++ {
 		poolState, found := d.pools.Get(blockHeight, poolId)
@@ -196,9 +193,7 @@ func (d *Indexer) fetchVolumeValuesPerBlockRange(min, max, poolId uint64) map[st
 			}
 			price, durationError := d.prices.Estimate(blockTime, coin.Denom)
 			if durationError > time.Hour*24 {
-				// if d.verbose {
-				log.Printf("WARNING: %s price at %v duration error too large: %v", coin.Denom, blockTime, durationError)
-				// }
+				d.logger.Debug("VOLUME: duration error too large", "denom", coin.Denom, "blockTime", blockTime, "duration", durationError)
 				continue
 			}
 
@@ -224,7 +219,7 @@ func (d *Indexer) BlockToTimestamp(height uint64) time.Time {
 	if bph == 0 {
 		// Should not happen
 		bph = DefaultBlocksPerHour
-		log.Println("WARNING: BlockToTimestamp Blocks Per Hour = 0!")
+		d.logger.Warn("VOLUME: BlockToTimestamp Blocks Per Hour = 0!")
 	}
 
 	current := d.currentBlockHeight.Load()

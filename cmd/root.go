@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"strconv"
 	"time"
@@ -52,10 +52,10 @@ func setErrorHandlers(conn *nats.Conn) {
 	}
 
 	conn.SetErrorHandler(func(c *nats.Conn, s *nats.Subscription, err error) {
-		fmt.Printf("NATS error: %v", err)
+		slog.Error("NATS error", err)
 	})
 	conn.SetDisconnectHandler(func(c *nats.Conn) {
-		fmt.Printf("NATS disconnected: %v", c.LastError())
+		slog.Error("NATS disconnected", c.LastError())
 	})
 }
 
@@ -64,8 +64,6 @@ var rootCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		log.SetFlags(0)
-
 		// Sacrifice some security for the sake of user experience by allowing to
 		// supply NATS account NKey instead of passing created user NKey and user JWS.
 		if *flagNatsAccNkey != "" {
@@ -104,7 +102,7 @@ var rootCmd = &cobra.Command{
 				panic(err)
 			}
 		}
-		repo, err := repository.New(db)
+		repo, err := repository.New(db, slog.Default())
 		if err != nil {
 			panic(err)
 		}
@@ -163,7 +161,7 @@ func init() {
 	port, err := strconv.ParseUint(envPort, 10, 64)
 	if err != nil {
 		port = 5432
-		log.Println("Bad database port format: ", err)
+		slog.Warn("Bad database port format, switching to default", "error", err, "port", port)
 	}
 
 	flagDbPort = rootCmd.PersistentFlags().UintP("db-port", "", uint(port), "Database Port")
@@ -184,8 +182,8 @@ func init() {
 		var err error
 		telemetryPeriod, err = time.ParseDuration(envTelemetryPeriod)
 		if err != nil {
-			log.Printf("Invalid format for TELEMETRY_PERIOD environment variable: %v, defaulting to 3s", err)
 			telemetryPeriod = time.Second * 3
+			slog.Warn("Invalid format for TELEMETRY_PERIOD environment variable.", "error", err, "default", telemetryPeriod)
 		}
 	} else {
 		telemetryPeriod = time.Second * 3

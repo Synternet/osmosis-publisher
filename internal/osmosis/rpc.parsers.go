@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/syntropynet/osmosis-publisher/pkg/types"
@@ -106,13 +105,13 @@ func (c *rpc) translateTransaction(
 
 	decodedTx, err := c.decodeTransaction(txRaw)
 	if err != nil {
-		log.Println("Decode Transaction failed:", err.Error())
+		c.logger.Error("Decode Transaction failed", err)
 		return transaction
 	}
 
 	ibcMap, err := c.getDenomsFromTransactions(decodedTx)
 	if err != nil {
-		log.Println("Extracting denoms failed:", err.Error())
+		c.logger.Error("Extracting denoms failed", err)
 	} else {
 		transaction.Metadata = ibcMap
 	}
@@ -125,11 +124,11 @@ func (c *rpc) translateTransaction(
 	tx := getter.GetProtoTx()
 	b, err := c.enccfg.Marshaler.MarshalJSON(tx)
 	if err != nil {
-		log.Println("marshaling intermediate JSON failed: ", err.Error())
+		c.logger.Error("marshaling intermediate JSON failed: ", err)
 	}
 	err = json.Unmarshal(b, &transaction.Tx)
 	if err != nil {
-		log.Println("unmarshaling intermediate JSON failed: ", err.Error())
+		c.logger.Error("unmarshaling intermediate JSON failed: ", err)
 	}
 	transaction.Raw = ""
 
@@ -143,7 +142,6 @@ func (c *rpc) translateBlock(block *tmtypes.Block) *types.Block {
 	}
 
 	return &types.Block{
-		// Nonce: c.NewNonce(),
 		Block: blockProto,
 	}
 }

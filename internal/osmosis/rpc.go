@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -42,6 +42,7 @@ type rpc struct {
 	group         *errgroup.Group
 	cancel        context.CancelCauseFunc
 	db            repository.Repository
+	logger        *slog.Logger
 	tendermintUrl string
 	grpcApiURL    string
 	tendermint    *rpchttp.HTTP
@@ -74,11 +75,12 @@ func ContextWithHeight(ctx context.Context, height int64) context.Context {
 	)
 }
 
-func newRpc(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup.Group, db repository.Repository, getDenoms func(ibcTrace IBCDenomTrace) error, tendermintUrl, grpcApiURL string) (*rpc, error) {
+func newRpc(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup.Group, logger *slog.Logger, db repository.Repository, getDenoms func(ibcTrace IBCDenomTrace) error, tendermintUrl, grpcApiURL string) (*rpc, error) {
 	ret := &rpc{
 		ctx:           ctx,
 		group:         group,
 		cancel:        cancel,
+		logger:        logger,
 		tendermintUrl: tendermintUrl,
 		grpcApiURL:    grpcApiURL,
 		mempoolSet:    make(map[string]struct{}),
@@ -87,14 +89,13 @@ func newRpc(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup
 		getDenoms:     getDenoms,
 	}
 
-	log.Printf("Using tendermint=%s grpc=%s\n", tendermintUrl, grpcApiURL)
+	logger.Info("Using RPC", "tendermint", tendermintUrl, "gRPC", grpcApiURL)
 
 	grpcConn, err := grpc.Dial(
 		grpcApiURL,
 		grpc.WithInsecure(),
 	)
 	if err != nil {
-		log.Println("Could not connect to Osmosis: ", err.Error())
 		return nil, err
 	}
 	ret.grpc = grpcConn
@@ -119,24 +120,24 @@ func newRpc(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup
 }
 
 func (c *rpc) Close() error {
-	log.Println("Publisher.RPC.Close")
+	c.logger.Info("Publisher.RPC.Close")
 	c.cancel(nil)
 	var errArr []error
 	if c.tendermint != nil {
-		log.Println("Publisher.RPC.UnsubscribeAll")
+		c.logger.Info("Publisher.RPC.UnsubscribeAll")
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 		errArr = append(errArr, c.tendermint.UnsubscribeAll(ctx, subscriberName))
-		log.Println("Publisher.RPC.tendermint.Stop")
+		c.logger.Info("Publisher.RPC.tendermint.Stop")
 		errArr = append(errArr, c.tendermint.Stop())
 	}
-	log.Println("Publisher.RPC.group.Wait")
+	c.logger.Info("Publisher.RPC.group.Wait")
 	errGr := c.group.Wait()
 	if !errors.Is(errGr, context.Canceled) {
 		errArr = append(errArr, errGr)
 	}
 	err := errors.Join(errArr...)
-	log.Println("Publisher.RPC.Close DONE: err=", err)
+	c.logger.Info("Publisher.RPC.Close DONE: err=", err)
 	return err
 }
 
@@ -172,7 +173,7 @@ func (c *rpc) DenomTraces() ([]IBCTypes.DenomTrace, error) {
 		cancel()
 		if err != nil {
 			c.errCounter.Add(1)
-			log.Printf("Failed to fetch denom traces: %v\n", err)
+			c.logger.Error("Failed to fetch denom traces", err)
 			return traces, err
 		}
 
@@ -261,7 +262,7 @@ func (c *rpc) Mempool() ([]*types.Transaction, error) {
 		res := c.translateTransaction(tx, hash, "", nil, nil)
 		txs = append(txs, res)
 
-		log.Println("Mempool: ", hash)
+		c.logger.Debug("Mempool: ", hash)
 	}
 	// Remove hashes from mempoolSet that were not observed in the mempool this time.
 	// That means that the tx was removed from the mempool.
@@ -369,15 +370,15 @@ func (c *rpc) bufferChannel(name string, events <-chan ctypes.ResultEvent, size 
 	ch := make(chan ctypes.ResultEvent, size)
 	c.group.Go(func() error {
 		defer close(ch)
-		defer log.Printf("bufferChannel %s exit", name)
+		defer c.logger.Info("bufferChannel exit", "name", name)
 		for {
 			select {
 			case <-c.ctx.Done():
-				log.Println("bufferChannel: Context Done; queue: ", len(events))
+				c.logger.Info("bufferChannel: Context Done", "len(events)", len(events))
 				return nil
 			case ev, ok := <-events:
 				if !ok {
-					log.Println("bufferChannel: events closed; queue: ", len(events))
+					c.logger.Info("bufferChannel: events closed", "len(events)", len(events))
 					return nil
 				}
 
@@ -389,7 +390,7 @@ func (c *rpc) bufferChannel(name string, events <-chan ctypes.ResultEvent, size 
 				case ch <- ev:
 				default:
 					c.evtSkipCounter.Add(1)
-					log.Println("bufferChannel: Overflow! Skipping event: ", ev.Query)
+					c.logger.Info("bufferChannel: Overflow! Skipping", "event", ev.Query)
 				}
 			}
 		}
