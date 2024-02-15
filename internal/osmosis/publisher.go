@@ -67,6 +67,12 @@ func New(db repository.Repository, opts ...options.Option) (*Publisher, error) {
 	ret.AddStatusCallback(ret.indexer.GetStatus)
 	ret.AddStatusCallback(ret.rpc.getStatus)
 
+	// Setup durable price stream to support at most 12h of downtime
+	err = ret.AddStream(12*3600, 12*3600*92, time.Hour*12, ret.PriceSubject())
+	if err != nil {
+		ret.Logger.Error("AddStream failed, durable stream unavailable", "err", err, "subject", ret.PriceSubject())
+	}
+
 	return ret, nil
 }
 

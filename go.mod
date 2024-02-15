@@ -14,7 +14,7 @@ require (
 	github.com/nats-io/nkeys v0.4.6
 	github.com/osmosis-labs/osmosis/v22 v22.0.0-alpha0
 	github.com/spf13/cobra v1.8.0
-	github.com/syntropynet/data-layer-sdk v0.1.1
+	github.com/syntropynet/data-layer-sdk v0.2.0
 	github.com/syntropynet/price-publisher v0.1.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	golang.org/x/sync v0.5.0
