@@ -67,6 +67,12 @@ var rootCmd = &cobra.Command{
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 			Level: slog.Level(*flagLogLevel),
+			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+				if a.Key == slog.TimeKey {
+					return slog.Attr{}
+				}
+				return a
+			},
 		})
 		slog.SetDefault(slog.New(h))
 
