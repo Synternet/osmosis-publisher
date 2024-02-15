@@ -100,7 +100,7 @@ func (p *Publisher) handleMonitoredPools(height int64, blockTime time.Time, hash
 	now := time.Now()
 	ps, _, err := p.getPoolsOfInterestStatuses(height, p.PoolIds()...)
 	if err != nil {
-		p.Logger.Warn("Failed getting pools of interest: ", err)
+		p.Logger.Warn("Failed getting pools of interest", "err", err)
 	}
 	poolStatus.Pools = ps
 
@@ -117,7 +117,7 @@ func (p *Publisher) handleMonitoredPools(height int64, blockTime time.Time, hash
 	}
 	err = p.getDenoms(ibcMap)
 	if err != nil {
-		p.Logger.Warn("Extracting denoms failed:", err)
+		p.Logger.Warn("Extracting denoms failed", "err", err)
 	}
 	poolStatus.Metadata = ibcMap
 
@@ -159,7 +159,7 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 			}
 			poolStatuses, height, err := p.getPoolsOfInterestStatuses(0, poolIds...)
 			if err != nil {
-				p.Logger.Warn("Failed getting pools of interest: ", err)
+				p.Logger.Warn("Failed getting pools of interest", "err", err)
 			}
 
 			pools := make([]any, 0, len(poolResults))
@@ -190,7 +190,7 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 			hash := ""
 			block, err := p.rpc.BlockAt(int64(height))
 			if err != nil {
-				p.Logger.Warn("Failed getting block", err)
+				p.Logger.Warn("Failed getting block", "err", err)
 			} else {
 				height = uint64(block.Height)
 				hash = block.Hash().String()
@@ -198,7 +198,7 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 
 			err = p.rpc.getDenoms(ibcMap)
 			if err != nil {
-				p.Logger.Warn("Extracting denoms failed", err)
+				p.Logger.Warn("Extracting denoms failed", "err", err)
 			}
 
 			msg := types.Pools{

@@ -84,7 +84,7 @@ func (d *Indexer) preHeatPools(blocks uint64) {
 	height := d.currentBlockHeight.Load()
 	pools, err := d.repo.PoolsRange(height-blocks, height, 0)
 	if err != nil {
-		d.logger.Error("Failed fetching pools for blocks", "from", height-blocks, "to", height, "error", err)
+		d.logger.Error("Failed fetching pools for blocks", "from", height-blocks, "to", height, "err", err)
 		return
 	}
 

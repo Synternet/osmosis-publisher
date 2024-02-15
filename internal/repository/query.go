@@ -130,12 +130,12 @@ func (r *Repository) LatestPool(id uint64) (repository.Pool, bool) {
 	}
 	liquidity, err := sdk.ParseCoinsNormalized(pool.Liquidity)
 	if err != nil {
-		r.logger.Error("Error parsing pool liquidity from DB:", err)
+		r.logger.Error("Error parsing pool liquidity from DB", "err", err)
 		return repository.Pool{}, false
 	}
 	volume, err := sdk.ParseCoinsNormalized(pool.Volume)
 	if err != nil {
-		r.logger.Error("Error parsing pool volume from DB:", err)
+		r.logger.Error("Error parsing pool volume from DB", "err", err)
 		return repository.Pool{}, false
 	}
 	return repository.Pool{

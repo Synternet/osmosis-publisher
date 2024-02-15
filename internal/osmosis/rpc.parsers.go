@@ -105,13 +105,13 @@ func (c *rpc) translateTransaction(
 
 	decodedTx, err := c.decodeTransaction(txRaw)
 	if err != nil {
-		c.logger.Error("Decode Transaction failed", err)
+		c.logger.Error("Decode Transaction failed", "err", err)
 		return transaction
 	}
 
 	ibcMap, err := c.getDenomsFromTransactions(decodedTx)
 	if err != nil {
-		c.logger.Error("Extracting denoms failed", err)
+		c.logger.Error("Extracting denoms failed", "err", err)
 	} else {
 		transaction.Metadata = ibcMap
 	}
@@ -124,11 +124,11 @@ func (c *rpc) translateTransaction(
 	tx := getter.GetProtoTx()
 	b, err := c.enccfg.Marshaler.MarshalJSON(tx)
 	if err != nil {
-		c.logger.Error("marshaling intermediate JSON failed: ", err)
+		c.logger.Error("marshaling intermediate JSON failed", "err", err)
 	}
 	err = json.Unmarshal(b, &transaction.Tx)
 	if err != nil {
-		c.logger.Error("unmarshaling intermediate JSON failed: ", err)
+		c.logger.Error("unmarshaling intermediate JSON failed", "err", err)
 	}
 	transaction.Raw = ""
 

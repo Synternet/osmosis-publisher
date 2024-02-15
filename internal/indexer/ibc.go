@@ -57,7 +57,7 @@ func (d *Indexer) preHeatDenomTraceCache() {
 	traces, err := d.rpc.DenomTraces()
 	if err != nil {
 		d.errCounter.Add(1)
-		d.logger.Warn("SYNC: Failed to fetch denom traces", err)
+		d.logger.Warn("SYNC: Failed to fetch denom traces", "err", err)
 		return
 	}
 

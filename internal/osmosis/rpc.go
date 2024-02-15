@@ -137,7 +137,7 @@ func (c *rpc) Close() error {
 		errArr = append(errArr, errGr)
 	}
 	err := errors.Join(errArr...)
-	c.logger.Info("Publisher.RPC.Close DONE: err=", err)
+	c.logger.Info("Publisher.RPC.Close DONE", "err", err)
 	return err
 }
 
@@ -173,7 +173,7 @@ func (c *rpc) DenomTraces() ([]IBCTypes.DenomTrace, error) {
 		cancel()
 		if err != nil {
 			c.errCounter.Add(1)
-			c.logger.Error("Failed to fetch denom traces", err)
+			c.logger.Error("Failed to fetch denom traces", "err", err)
 			return traces, err
 		}
 

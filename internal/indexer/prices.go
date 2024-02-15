@@ -190,7 +190,7 @@ func (d *Indexer) SetLatestPrice(token, base string, value float64, lastUpdated 
 	needSort := d.prices.Set(tokenPrice)
 	err := d.repo.SaveTokenPrice(tokenPrice)
 	if err != nil {
-		d.logger.Error("Failed saving tokenPrice to DB", err)
+		d.logger.Error("Failed saving tokenPrice to DB", "err", err)
 	}
 
 	// More efficient could be Sorted Insert, but we do it once in say 5 seconds and we only practically store 48h worth of records for a token.
