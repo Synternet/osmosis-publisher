@@ -50,10 +50,10 @@ func (p *Publisher) combinePoolStatusesAt(height int64, before time.Duration, ps
 		return err
 	}
 
-	for _, pAt := range psAt {
+	for pIdx, pAt := range psAt {
 		idx := mids[pAt.PoolId]
 		ps[idx].Volumes = append(ps[idx].Volumes, pAt.Volumes...)
-		p.Logger.Debug("SUB POOL: combinePoolStatusesAt", "poolId", pAt.PoolId, "volumes", len(ps[idx].Volumes))
+		p.Logger.Debug("SUB POOL: combinePoolStatusesAt", "poolId", pAt.PoolId, "volumes", len(ps[idx].Volumes), "pIdx", pIdx, "idx", idx)
 	}
 
 	return nil
