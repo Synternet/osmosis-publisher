@@ -65,10 +65,11 @@ var rootCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		_, skipTime := os.LookupEnv("LOG_SKIP_TIME")
 		h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 			Level: slog.Level(*flagLogLevel),
 			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
-				if a.Key == slog.TimeKey {
+				if a.Key == slog.TimeKey && skipTime {
 					return slog.Attr{}
 				}
 				return a
