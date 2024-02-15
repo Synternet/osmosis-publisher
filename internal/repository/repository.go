@@ -18,22 +18,22 @@ type Repository struct {
 
 func New(db *gorm.DB, logger *slog.Logger) (*Repository, error) {
 	ret := &Repository{
-		logger: logger,
+		logger: logger.With("module", "repository"),
 		dbCon:  db,
 	}
 
 	// Create tables for data structures (if table already exists it will not be overwritten)
 	err := db.AutoMigrate(&IBCDenom{})
 	if err != nil {
-		return nil, fmt.Errorf("IBCDenom table migrate error: %w", err)
+		return nil, fmt.Errorf("IBCDenom migrate error: %w", err)
 	}
 	err = db.AutoMigrate(&Pool{})
 	if err != nil {
-		return nil, fmt.Errorf("IBCDenom table migrate error: %w", err)
+		return nil, fmt.Errorf("Pool migrate error: %w", err)
 	}
 	err = db.AutoMigrate(&TokenPrice{})
 	if err != nil {
-		return nil, fmt.Errorf("IBCDenom table migrate error: %w", err)
+		return nil, fmt.Errorf("TokenPrice migrate error: %w", err)
 	}
 	return ret, nil
 }

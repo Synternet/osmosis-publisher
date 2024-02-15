@@ -67,7 +67,7 @@ func New(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup.Gr
 		ctx:    ctx,
 		group:  group,
 		cancel: cancel,
-		logger: logger,
+		logger: logger.With("module", "indexer"),
 		repo:   repo,
 		rpc:    rpc,
 		pools: PoolMap{

@@ -80,7 +80,7 @@ func newRpc(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup
 		ctx:           ctx,
 		group:         group,
 		cancel:        cancel,
-		logger:        logger,
+		logger:        logger.With("module", "rpc"),
 		tendermintUrl: tendermintUrl,
 		grpcApiURL:    grpcApiURL,
 		mempoolSet:    make(map[string]struct{}),
@@ -262,7 +262,7 @@ func (c *rpc) Mempool() ([]*types.Transaction, error) {
 		res := c.translateTransaction(tx, hash, "", nil, nil)
 		txs = append(txs, res)
 
-		c.logger.Debug("Mempool: ", hash)
+		c.logger.Debug("MEMPOOL TX", "hash", hash)
 	}
 	// Remove hashes from mempoolSet that were not observed in the mempool this time.
 	// That means that the tx was removed from the mempool.
