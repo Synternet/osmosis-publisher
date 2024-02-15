@@ -44,6 +44,8 @@ func New(db repository.Repository, opts ...options.Option) (*Publisher, error) {
 
 	ret.Configure(opts...)
 
+	ret.Logger.Info("Tracking pools", "ids", ret.PoolIds())
+
 	rpc, err := newRpc(ret.Context, ret.Cancel, ret.Group, ret.Logger, db, ret.getDenoms, ret.TendermintApi(), ret.GRPCApi())
 	if err != nil {
 		return nil, fmt.Errorf("failed connecting to Osmosis: %w", err)

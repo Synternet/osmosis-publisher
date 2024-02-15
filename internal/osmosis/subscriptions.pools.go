@@ -53,6 +53,7 @@ func (p *Publisher) combinePoolStatusesAt(height int64, before time.Duration, ps
 	for _, pAt := range psAt {
 		idx := mids[pAt.PoolId]
 		ps[idx].Volumes = append(ps[idx].Volumes, pAt.Volumes...)
+		p.Logger.Debug("SUB POOL: combinePoolStatusesAt", "poolId", pAt.PoolId, "volumes", len(ps[idx].Volumes))
 	}
 
 	return nil
@@ -63,26 +64,26 @@ func (p *Publisher) combinePoolStatusesAt(height int64, before time.Duration, ps
 func (p *Publisher) getPoolsOfInterestStatuses(height int64, ids ...uint64) ([]types.PoolStatus, uint64, error) {
 	errArr := make([]error, 3)
 
-	p.Logger.Info("SUB POOL: getPoolsOfInterestStatuses PoolStatusesAt", "len", len(ids))
+	p.Logger.Debug("SUB POOL: getPoolsOfInterestStatuses PoolStatusesAt", "len", len(ids))
 	ps, h, err := p.indexer.PoolStatusesAt(uint64(height), ids...)
 	if err != nil {
-		errArr = append(errArr, fmt.Errorf("Failed getting pools status: %w", err))
+		errArr = append(errArr, fmt.Errorf("PoolStatusesAt failed h=%d: %w", height, err))
 	}
 
-	p.Logger.Info("SUB POOL: getPoolsOfInterestStatuses PoolStatusesAt durations before", "len", len(ids))
+	p.Logger.Debug("SUB POOL: getPoolsOfInterestStatuses PoolStatusesAt durations before", "len", len(ids))
 	for _, before := range []time.Duration{time.Hour, time.Hour * 4, time.Hour * 12, time.Hour * 24} {
 		err = p.combinePoolStatusesAt(int64(h), before, ps)
 		if err != nil {
-			errArr = append(errArr, fmt.Errorf("Failed combining pools volumes for %v: %w", before, err))
+			errArr = append(errArr, fmt.Errorf("combinePoolStatusesAt failed at=%d before=%v: %w", h, before, err))
 		}
 	}
 
-	p.Logger.Info("SUB POOL: getPoolsOfInterestStatuses CalculateVolumes", "len", len(ids))
+	p.Logger.Debug("SUB POOL: getPoolsOfInterestStatuses CalculateVolumes", "len", len(ids))
 	err = p.indexer.CalculateVolumes(ps)
 	if err != nil {
-		errArr = append(errArr, fmt.Errorf("Failed calculating pools volumes: %w", err))
+		errArr = append(errArr, fmt.Errorf("CalculateVolumes failed: %w", err))
 	}
-	p.Logger.Info("SUB POOL: getPoolsOfInterestStatuses DONE", "len", len(ids))
+	p.Logger.Debug("SUB POOL: getPoolsOfInterestStatuses DONE", "len", len(ids), "errs", errArr)
 
 	return ps, h, errors.Join(errArr...)
 }
@@ -146,7 +147,7 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 			ibcMap := make(IBCDenomTrace)
 			poolIds := ExtractUniquePoolIds(ev)
 
-			p.Logger.Debug("POOL EVT: ", "query", ev.Query, "poolIds", poolIds)
+			p.Logger.Debug("Pool", "query", ev.Query, "poolIds", poolIds)
 
 			if poolIds == nil {
 				continue
@@ -163,8 +164,9 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 			}
 
 			pools := make([]any, 0, len(poolResults))
-			for _, pool := range poolResults {
+			for idx, pool := range poolResults {
 				if pool == nil {
+					p.Logger.Debug("Pool is nil", "idx", idx)
 					continue
 				}
 				pools = append(pools, (*pool).AsSerializablePool())

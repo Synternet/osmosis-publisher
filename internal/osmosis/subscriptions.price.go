@@ -22,7 +22,7 @@ func (p *Publisher) handlePriceFeed(msg service.Message) {
 	var quote cmc.QuoteInfo
 	err := json.Unmarshal(msg.Data(), &quote)
 	if err != nil {
-		p.Logger.Error("Bogus PRICE message", "err", err)
+		p.Logger.Error("unmarshalling PRICE message", "err", err)
 		return
 	}
 
@@ -30,7 +30,7 @@ func (p *Publisher) handlePriceFeed(msg service.Message) {
 
 	err = p.indexer.SetLatestPrice(parts[len(parts)-1], "USD", quote.Price, time.Unix(quote.LastUpdated, 0))
 	if err != nil {
-		p.Logger.Error("Failed indexing price: ", "err", err)
+		p.Logger.Error("indexing price: ", "err", err)
 		return
 	}
 

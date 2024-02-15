@@ -33,7 +33,7 @@ func (p *Publisher) handleBlocks(events <-chan ctypes.ResultEvent) error {
 			switch data := ev.Data.(type) {
 			case tmtypes.EventDataNewBlock:
 				now := time.Now()
-				p.Logger.Info("Block START", "hash", data.Block.Hash().String(), "height", data.Block.Height, "len(events)", len(events))
+				p.Logger.Info("Block START", "hash", data.Block.Hash().String(), "height", data.Block.Height, "time", data.Block.Time, "len(events)", len(events))
 				p.indexer.SetLatestBlockHeight(uint64(data.Block.Height), data.Block.Time)
 				p.handleBlock(data.Block)
 				p.handleMonitoredPools(data.Block.Height, data.Block.Time, data.Block.Hash().String())

@@ -262,7 +262,7 @@ func (c *rpc) Mempool() ([]*types.Transaction, error) {
 		res := c.translateTransaction(tx, hash, "", nil, nil)
 		txs = append(txs, res)
 
-		c.logger.Debug("MEMPOOL TX", "hash", hash)
+		c.logger.Debug("Mempool", "txID", hash)
 	}
 	// Remove hashes from mempoolSet that were not observed in the mempool this time.
 	// That means that the tx was removed from the mempool.
