@@ -5,6 +5,8 @@ import (
 
 	"github.com/syntropynet/data-layer-sdk/pkg/options"
 	"github.com/syntropynet/data-layer-sdk/pkg/service"
+	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -58,6 +60,13 @@ func (p *Publisher) MempoolPeriod() time.Duration {
 }
 
 func WithPoolIds(ids []uint64) options.Option {
+	idsMap := make(map[uint64]struct{}, len(ids))
+	for _, id := range ids {
+		idsMap[id] = struct{}{}
+	}
+	ids = maps.Keys(idsMap)
+	slices.SortFunc(ids, func(a uint64, b uint64) bool { return a < b })
+
 	return func(o *options.Options) {
 		service.WithParam(PoolIdsParam, ids)(o)
 	}
