@@ -2,7 +2,6 @@ package osmosis
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -19,11 +18,11 @@ func (p *Publisher) handleBlocks(events <-chan ctypes.ResultEvent) error {
 	for {
 		select {
 		case <-p.Context.Done():
-			log.Println("handleTransactions: c.Context Done")
+			p.Logger.Info("handleTransactions: c.Context Done")
 			return nil
 		case ev, ok := <-events:
 			if !ok {
-				log.Println("handleTransactions: events closed")
+				p.Logger.Info("handleTransactions: events closed")
 				return nil
 			}
 
@@ -34,11 +33,11 @@ func (p *Publisher) handleBlocks(events <-chan ctypes.ResultEvent) error {
 			switch data := ev.Data.(type) {
 			case tmtypes.EventDataNewBlock:
 				now := time.Now()
-				log.Printf("Block: START hash=%s height=%d len(queue)=%d", data.Block.Hash().String(), data.Block.Height, len(events))
+				p.Logger.Info("Block START", "hash", data.Block.Hash().String(), "height", data.Block.Height, "time", data.Block.Time, "len(events)", len(events))
 				p.indexer.SetLatestBlockHeight(uint64(data.Block.Height), data.Block.Time)
 				p.handleBlock(data.Block)
 				p.handleMonitoredPools(data.Block.Height, data.Block.Time, data.Block.Hash().String())
-				log.Printf("Block: FINISH hash=%s height=%d duration=%v len(queue)=%d", data.Block.Hash().String(), data.Block.Height, time.Since(now), len(events))
+				p.Logger.Info("Block FINISH", "hash", data.Block.Hash().String(), "height", data.Block.Height, "duration", time.Since(now), "len(events)", len(events))
 			default:
 				p.evtOtherCounter.Add(1)
 			}

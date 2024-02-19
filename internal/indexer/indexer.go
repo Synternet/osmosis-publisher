@@ -2,13 +2,14 @@ package indexer
 
 import (
 	"context"
+	"log/slog"
 	"sync/atomic"
 	"time"
 
+	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/syntropynet/osmosis-publisher/pkg/indexer"
 	"github.com/syntropynet/osmosis-publisher/pkg/repository"
 	"github.com/syntropynet/osmosis-publisher/pkg/types"
-	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"golang.org/x/sync/errgroup"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -41,6 +42,7 @@ type Indexer struct {
 	cancel context.CancelCauseFunc
 	repo   repository.Repository
 	rpc    ExpectedRPC
+	logger *slog.Logger
 
 	ibcTraceCache map[string]IBCTypes.DenomTrace
 	ibcMisses     atomic.Uint64
@@ -60,11 +62,12 @@ type Indexer struct {
 	verbose bool
 }
 
-func New(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup.Group, repo repository.Repository, rpc ExpectedRPC, poolIds []uint64, blocks uint64, verbose bool) (*Indexer, error) {
+func New(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup.Group, logger *slog.Logger, repo repository.Repository, rpc ExpectedRPC, poolIds []uint64, blocks uint64, verbose bool) (*Indexer, error) {
 	ret := &Indexer{
 		ctx:    ctx,
 		group:  group,
 		cancel: cancel,
+		logger: logger.With("module", "indexer"),
 		repo:   repo,
 		rpc:    rpc,
 		pools: PoolMap{

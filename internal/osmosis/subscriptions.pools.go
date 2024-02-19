@@ -3,7 +3,6 @@ package osmosis
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -51,9 +50,10 @@ func (p *Publisher) combinePoolStatusesAt(height int64, before time.Duration, ps
 		return err
 	}
 
-	for _, pAt := range psAt {
+	for pIdx, pAt := range psAt {
 		idx := mids[pAt.PoolId]
 		ps[idx].Volumes = append(ps[idx].Volumes, pAt.Volumes...)
+		p.Logger.Debug("SUB POOL: combinePoolStatusesAt", "poolId", pAt.PoolId, "volumes", len(ps[idx].Volumes), "pIdx", pIdx, "idx", idx)
 	}
 
 	return nil
@@ -64,26 +64,26 @@ func (p *Publisher) combinePoolStatusesAt(height int64, before time.Duration, ps
 func (p *Publisher) getPoolsOfInterestStatuses(height int64, ids ...uint64) ([]types.PoolStatus, uint64, error) {
 	errArr := make([]error, 3)
 
-	log.Println("SUB POOL: getPoolsOfInterestStatuses PoolStatusesAt len=", len(ids))
+	p.Logger.Debug("SUB POOL: getPoolsOfInterestStatuses PoolStatusesAt", "len", len(ids))
 	ps, h, err := p.indexer.PoolStatusesAt(uint64(height), ids...)
 	if err != nil {
-		errArr = append(errArr, fmt.Errorf("Failed getting pools status: %w", err))
+		errArr = append(errArr, fmt.Errorf("PoolStatusesAt failed h=%d: %w", height, err))
 	}
 
-	log.Println("SUB POOL: getPoolsOfInterestStatuses PoolStatusesAt durations before len=", len(ids))
+	p.Logger.Debug("SUB POOL: getPoolsOfInterestStatuses PoolStatusesAt durations before", "len", len(ids))
 	for _, before := range []time.Duration{time.Hour, time.Hour * 4, time.Hour * 12, time.Hour * 24} {
 		err = p.combinePoolStatusesAt(int64(h), before, ps)
 		if err != nil {
-			errArr = append(errArr, fmt.Errorf("Failed combining pools volumes for %v: %w", before, err))
+			errArr = append(errArr, fmt.Errorf("combinePoolStatusesAt failed at=%d before=%v: %w", h, before, err))
 		}
 	}
 
-	log.Println("SUB POOL: getPoolsOfInterestStatuses CalculateVolumes len=", len(ids))
+	p.Logger.Debug("SUB POOL: getPoolsOfInterestStatuses CalculateVolumes", "len", len(ids))
 	err = p.indexer.CalculateVolumes(ps)
 	if err != nil {
-		errArr = append(errArr, fmt.Errorf("Failed calculating pools volumes: %w", err))
+		errArr = append(errArr, fmt.Errorf("CalculateVolumes failed: %w", err))
 	}
-	log.Println("SUB POOL: getPoolsOfInterestStatuses DONE len=", len(ids))
+	p.Logger.Debug("SUB POOL: getPoolsOfInterestStatuses DONE", "len", len(ids), "errs", errArr)
 
 	return ps, h, errors.Join(errArr...)
 }
@@ -101,7 +101,7 @@ func (p *Publisher) handleMonitoredPools(height int64, blockTime time.Time, hash
 	now := time.Now()
 	ps, _, err := p.getPoolsOfInterestStatuses(height, p.PoolIds()...)
 	if err != nil {
-		log.Println("Failed getting pools of interest: ", err)
+		p.Logger.Warn("Failed getting pools of interest", "err", err)
 	}
 	poolStatus.Pools = ps
 
@@ -118,11 +118,11 @@ func (p *Publisher) handleMonitoredPools(height int64, blockTime time.Time, hash
 	}
 	err = p.getDenoms(ibcMap)
 	if err != nil {
-		log.Println("Extracting denoms failed:", err.Error())
+		p.Logger.Warn("Extracting denoms failed", "err", err)
 	}
 	poolStatus.Metadata = ibcMap
 
-	log.Printf("Pool Volumes: %d height=%d time='%v' duration=%v", len(poolStatus.Pools), height, blockTime, time.Since(now))
+	p.Logger.Info("Pool Volumes", "num_pools", len(poolStatus.Pools), "height", height, "blockTime", blockTime, "duration", time.Since(now))
 	p.Publish(
 		&poolStatus,
 		"volume",
@@ -136,18 +136,18 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 	for {
 		select {
 		case <-p.Context.Done():
-			log.Println("handlePoolSubscriptions: c.Context Done")
+			p.Logger.Info("handlePoolSubscriptions: c.Context Done")
 			return nil
 		case ev, ok := <-events:
 			if !ok {
-				log.Println("handlePoolSubscriptions: events closed")
+				p.Logger.Info("handlePoolSubscriptions: events closed")
 				return nil
 			}
 
 			ibcMap := make(IBCDenomTrace)
 			poolIds := ExtractUniquePoolIds(ev)
 
-			log.Println("POOL EVT: ", ev.Query, poolIds)
+			p.Logger.Debug("Pool", "query", ev.Query, "poolIds", poolIds)
 
 			if poolIds == nil {
 				continue
@@ -156,17 +156,17 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 			// TODO: Fetch in parallel
 			poolResults, err := p.rpc.PoolsAt(0, poolIds...)
 			if err != nil {
-				log.Printf("Failed to fetch pools %v: %s\n", poolIds, err.Error())
+				p.Logger.Warn("Failed to fetch pools", "poolIds", poolIds, "err", err)
 			}
 			poolStatuses, height, err := p.getPoolsOfInterestStatuses(0, poolIds...)
 			if err != nil {
-				log.Println("Failed getting pools of interest: ", err)
+				p.Logger.Warn("Failed getting pools of interest", "err", err)
 			}
 
 			pools := make([]any, 0, len(poolResults))
-			for _, pool := range poolResults {
+			for idx, pool := range poolResults {
 				if pool == nil {
-					log.Println("received null PoolI")
+					p.Logger.Debug("Pool is nil", "idx", idx)
 					continue
 				}
 				pools = append(pools, (*pool).AsSerializablePool())
@@ -192,7 +192,7 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 			hash := ""
 			block, err := p.rpc.BlockAt(int64(height))
 			if err != nil {
-				log.Println("Failed getting block: ", err)
+				p.Logger.Warn("Failed getting block", "err", err)
 			} else {
 				height = uint64(block.Height)
 				hash = block.Hash().String()
@@ -200,7 +200,7 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 
 			err = p.rpc.getDenoms(ibcMap)
 			if err != nil {
-				log.Println("Extracting denoms failed:", err.Error())
+				p.Logger.Warn("Extracting denoms failed", "err", err)
 			}
 
 			msg := types.Pools{

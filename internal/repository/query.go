@@ -2,20 +2,19 @@ package repository
 
 import (
 	"fmt"
-	"log"
 	"time"
 
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	_ "github.com/lib/pq"
+	"github.com/syntropynet/osmosis-publisher/pkg/repository"
 )
 
 func (r *Repository) IBCDenom(ibc string) (IBCTypes.DenomTrace, bool) {
 	var denom IBCDenom
 	result := r.dbCon.Model(&IBCDenom{}).Limit(1).Find(&denom, "ibc = ?", ibc)
 	if result.Error != nil {
-		log.Println("Error fetching IBC Denom from DB:", result.Error)
+		r.logger.Error("Error fetching IBC Denom from DB:", result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return IBCTypes.DenomTrace{}, false
@@ -30,7 +29,7 @@ func (r *Repository) IBCDenomAll() []IBCTypes.DenomTrace {
 	var denoms []IBCDenom
 	result := r.dbCon.Model(&IBCDenom{}).Find(&denoms)
 	if result.Error != nil {
-		log.Println("Error fetching all IBC Denoms from DB:", result.Error)
+		r.logger.Error("Error fetching all IBC Denoms from DB:", result.Error)
 		return nil
 	}
 
@@ -49,7 +48,7 @@ func (r *Repository) TokenPrice(timestamp time.Time, denom string) (repository.T
 	var token TokenPrice
 	result := r.dbCon.Model(&TokenPrice{}).Limit(1).Find(&token, "last_updated = ? AND name = ?", timestamp.UnixNano(), denom)
 	if result.Error != nil {
-		log.Println("Error fetching TokenPrice from DB:", result.Error)
+		r.logger.Error("Error fetching TokenPrice from DB:", result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return repository.TokenPrice{}, false
@@ -81,7 +80,7 @@ func (r *Repository) NearestTokenPrice(timestamp time.Time, denom string) ([]rep
 		denom, ts, ts).Scan(&tokens)
 
 	if result.Error != nil {
-		log.Println("Error fetching TokenPrices from DB:", result.Error)
+		r.logger.Error("Error fetching TokenPrices from DB:", result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return nil, false
@@ -105,7 +104,7 @@ func (r *Repository) LatestTokenPrice(denom string) (repository.TokenPrice, bool
 	var token TokenPrice
 	result := r.dbCon.Model(&TokenPrice{}).Order("last_updated DESC").Limit(1).Find(&token, "name = ?", denom)
 	if result.Error != nil {
-		log.Println("Error fetching TokenPrice from DB:", result.Error)
+		r.logger.Error("Error fetching TokenPrice from DB:", result.Error)
 	}
 	if result.RowsAffected == 0 {
 		return repository.TokenPrice{}, false
@@ -123,7 +122,7 @@ func (r *Repository) LatestPool(id uint64) (repository.Pool, bool) {
 	var pool Pool
 	result := r.dbCon.Model(&Pool{}).Last(&pool, "pool_id = ?", id)
 	if result.Error != nil {
-		log.Println("Error fetching Pool from DB:", result.Error)
+		r.logger.Error("Error fetching Pool from DB:", result.Error)
 		return repository.Pool{}, false
 	}
 	if result.RowsAffected == 0 {
@@ -131,12 +130,12 @@ func (r *Repository) LatestPool(id uint64) (repository.Pool, bool) {
 	}
 	liquidity, err := sdk.ParseCoinsNormalized(pool.Liquidity)
 	if err != nil {
-		log.Println("Error parsing pool liquidity from DB:", err)
+		r.logger.Error("Error parsing pool liquidity from DB", "err", err)
 		return repository.Pool{}, false
 	}
 	volume, err := sdk.ParseCoinsNormalized(pool.Volume)
 	if err != nil {
-		log.Println("Error parsing pool volume from DB:", err)
+		r.logger.Error("Error parsing pool volume from DB", "err", err)
 		return repository.Pool{}, false
 	}
 	return repository.Pool{
@@ -156,7 +155,7 @@ func (r *Repository) PoolsRange(min, max, poolId uint64) ([]repository.Pool, err
 	}
 	result := r.dbCon.Model(&Pool{}).Find(&pools, query, min, max, poolId)
 	if result.Error != nil {
-		log.Println("Error fetching Pools from DB:", result.Error)
+		r.logger.Error("Error fetching Pools from DB:", result.Error)
 		return nil, result.Error
 	}
 
@@ -164,12 +163,12 @@ func (r *Repository) PoolsRange(min, max, poolId uint64) ([]repository.Pool, err
 	for i, p := range pools {
 		liquidity, err := sdk.ParseCoinsNormalized(p.Liquidity)
 		if err != nil {
-			log.Printf("Error parsing pool %d liquidity from DB: %v", p.PoolId, err)
+			r.logger.Error("Error parsing liquidity from DB", "poolId", p.PoolId, "err", err)
 			return nil, err
 		}
 		volume, err := sdk.ParseCoinsNormalized(p.Volume)
 		if err != nil {
-			log.Printf("Error parsing pool %d volume from DB: %v", p.PoolId, err)
+			r.logger.Error("Error parsing volume", "poolId", p.PoolId, "err", err)
 			return nil, err
 		}
 		ret[i] = repository.Pool{
@@ -191,7 +190,7 @@ func (r *Repository) TokenPricesRange(min, max time.Time, denom string) ([]repos
 	}
 	result := r.dbCon.Model(&TokenPrice{}).Find(&prices, query, min.UnixNano(), max.UnixNano(), denom)
 	if result.Error != nil {
-		log.Println("Error fetching Token Prices from DB:", result.Error)
+		r.logger.Error("Error fetching Token Prices from DB:", result.Error)
 		return nil, result.Error
 	}
 

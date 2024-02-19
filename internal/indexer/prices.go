@@ -2,7 +2,6 @@ package indexer
 
 import (
 	"fmt"
-	"log"
 	"slices"
 	"strings"
 	"sync"
@@ -136,7 +135,7 @@ func (d *Indexer) preHeatPrices(blocks uint64) {
 	min, max := time.Now().Add(-(time.Hour*time.Duration(blocks))/time.Duration(d.blocksPerHour.Load())), time.Now()
 	prices, err := d.repo.TokenPricesRange(min, max, "")
 	if err != nil {
-		log.Printf("Failed fetching prices from %v till %v: %v", min, max, err)
+		d.logger.Error("SYNC: Failed fetching prices", "from", min, "to", max, "err", err)
 		return
 	}
 
@@ -152,7 +151,7 @@ func (d *Indexer) preHeatPrices(blocks uint64) {
 		d.prices.Set(p)
 	}
 
-	log.Printf("SYNC: Prices loaded: %d for min_lastUpdated=%v and max_LastUpdated=%v; first_lastUpdated=%v last_LastUpdated=%v\n", len(prices), min, max, first_lastUpdated, last_lastUpdated)
+	d.logger.Info("SYNC: Prices loaded", "len(prices)", len(prices), "min_lastUpdated", min, "max_LastUpdated", max, "first_lastUpdated", first_lastUpdated, "last_LastUpdated", last_lastUpdated)
 
 	d.prices.Sort()
 }
@@ -177,9 +176,7 @@ func convertToMicroToken(token string, value float64) (string, float64, bool) {
 
 func (d *Indexer) SetLatestPrice(token, base string, value float64, lastUpdated time.Time) error {
 	if uToken, uValue, converted := convertToMicroToken(token, value); converted {
-		if d.verbose {
-			log.Printf("PRICE: Formatted %s=%f to %s=%f", token, value, uToken, uValue)
-		}
+		d.logger.Debug("PRICE: Formatted", "token", token, "value", value, "uToken", uToken, "uValue", uValue)
 		token = uToken
 		value = uValue
 	}
@@ -193,7 +190,7 @@ func (d *Indexer) SetLatestPrice(token, base string, value float64, lastUpdated 
 	needSort := d.prices.Set(tokenPrice)
 	err := d.repo.SaveTokenPrice(tokenPrice)
 	if err != nil {
-		log.Printf("Failed saving tokenPrice to DB: %v", err)
+		d.logger.Error("Failed saving tokenPrice to DB", "err", err)
 	}
 
 	// More efficient could be Sorted Insert, but we do it once in say 5 seconds and we only practically store 48h worth of records for a token.

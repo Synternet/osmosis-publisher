@@ -2,7 +2,6 @@ package indexer
 
 import (
 	"errors"
-	"log"
 	"sync"
 	"sync/atomic"
 
@@ -85,7 +84,7 @@ func (d *Indexer) preHeatPools(blocks uint64) {
 	height := d.currentBlockHeight.Load()
 	pools, err := d.repo.PoolsRange(height-blocks, height, 0)
 	if err != nil {
-		log.Printf("Failed fetching pools for blocks from %d till %d: %v", height-blocks, height, err)
+		d.logger.Error("Failed fetching pools for blocks", "from", height-blocks, "to", height, "err", err)
 		return
 	}
 
@@ -104,7 +103,7 @@ func (d *Indexer) preHeatPools(blocks uint64) {
 		}
 	}
 
-	log.Printf("SYNC: Pools loaded: %v for start_block=%d and end_block=%d; first_block=%d last_block=%d\n", len(pools), height-blocks, height, first_height, last_height)
+	d.logger.Info("SYNC: Pools loaded", "len(pools)", len(pools), "from", height-blocks, "to", height, "first_height", first_height, "last_height", last_height)
 }
 
 func (d *Indexer) poolsPrune(minHeight uint64) {
@@ -143,7 +142,7 @@ func (d *Indexer) PoolStatusAt(height, poolId uint64) (types.PoolStatus, uint64,
 
 	pool, err := d.getPool(height, poolId)
 	if err != nil {
-		log.Printf("SYNC: PoolStatusAt failed for %d at height=%d err=%v", poolId, height, err)
+		d.logger.Error("SYNC: PoolStatusAt failed", "poolId", poolId, "height", height, "err", err)
 		return poolStatus, height, err
 	}
 

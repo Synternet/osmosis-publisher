@@ -2,14 +2,15 @@ package cmd
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 	"strconv"
 
-	"github.com/syntropynet/osmosis-publisher/internal/osmosis"
 	"github.com/spf13/cobra"
 	"github.com/syntropynet/data-layer-sdk/pkg/service"
+	"github.com/syntropynet/osmosis-publisher/internal/osmosis"
 )
 
 var (
@@ -34,12 +35,12 @@ var startCmd = &cobra.Command{
 		poolIds := make([]uint64, len(poolIdsSigned))
 		for i, id := range poolIdsSigned {
 			if id < 0 {
-				log.Fatal("Pool ID cannot be negative: ", id, "at", i)
+				panic(fmt.Errorf("Pool ID cannot be negative: %d at %d", id, i))
 			}
 			poolIds[i] = uint64(id)
 		}
 
-		publisher := osmosis.New(
+		publisher, err := osmosis.New(
 			database,
 			service.WithContext(ctx),
 			service.WithTelemetryPeriod(*flagTelemetryPeriod),
@@ -58,8 +59,11 @@ var startCmd = &cobra.Command{
 			osmosis.WithBlocksToIndex(*flagBlocks),
 			osmosis.WithPriceSubject(*flagPricesSubject),
 		)
-
 		if publisher == nil {
+			return
+		}
+		if err != nil {
+			slog.Error("publisher failed", err)
 			return
 		}
 
@@ -68,9 +72,9 @@ var startCmd = &cobra.Command{
 
 		select {
 		case <-ctx.Done():
-			log.Println("Shutdown")
+			slog.Info("Shutdown")
 		case <-pubCtx.Done():
-			log.Println("Publisher stopped with cause: ", context.Cause(pubCtx).Error())
+			slog.Info("Publisher stopped", "cause", context.Cause(pubCtx).Error())
 			stop()
 		}
 	},
@@ -109,7 +113,7 @@ func init() {
 	for i, p := range pools {
 		val, err := strconv.ParseInt(p, 10, 64)
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 		dp[i] = val
 	}
@@ -119,7 +123,7 @@ func init() {
 	blocks, err := strconv.ParseUint(envBlocks, 10, 64)
 	if err != nil {
 		blocks = 17000
-		log.Println("Bad number of blocks format: ", err)
+		slog.Warn("Bad number of blocks format", "error", err, "default", blocks)
 	}
 	flagBlocks = startCmd.Flags().Uint64("blocks-to-index", blocks, "Number of previous blocks to keep track of")
 }

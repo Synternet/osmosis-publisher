@@ -1,7 +1,6 @@
 package indexer
 
 import (
-	"log"
 	"time"
 )
 
@@ -18,13 +17,13 @@ func (d *Indexer) handleSyncing(blocks uint64) error {
 	for {
 		select {
 		case <-d.ctx.Done():
-			log.Println("indexer.handleSyncing: c.Context Done")
+			d.logger.Info("indexer.handleSyncing: c.Context Done")
 			return nil
 		case height := <-d.syncHeights:
-			log.Printf("SYNC: from height=%d until height=%d num=%d", height, d.currentBlockHeight.Load(), len(d.syncHeights))
+			d.logger.Info("SYNC", "height", height, "current_height", d.currentBlockHeight.Load(), "queue_heights", len(d.syncHeights))
 			err := d.syncHeight(height)
 			if err != nil {
-				log.Printf("SYNC: failed syncing height=%d: %v", height, err)
+				d.logger.Error("SYNC: failed syncing", "height", height, "err", err)
 			}
 		}
 	}
@@ -44,7 +43,7 @@ func (d *Indexer) monitorHeights(blocks uint64) error {
 
 		select {
 		case <-d.ctx.Done():
-			log.Println("indexer.monitorHeights: c.Context Done")
+			d.logger.Info("indexer.monitorHeights: c.Context Done")
 			return nil
 		case <-ticker.C:
 		}
@@ -72,7 +71,7 @@ func (d *Indexer) queueMissingHeights(blocks uint64) error {
 
 			select {
 			case <-d.ctx.Done():
-				log.Println("indexer.queueMissingHeights: c.Context Done")
+				d.logger.Info("indexer.queueMissingHeights: c.Context Done")
 				return d.ctx.Err()
 			case d.syncHeights <- i:
 			}

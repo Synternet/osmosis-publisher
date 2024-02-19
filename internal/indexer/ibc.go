@@ -1,8 +1,6 @@
 package indexer
 
 import (
-	"log"
-
 	ibctypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 )
 
@@ -46,7 +44,7 @@ func (d *Indexer) loadDenomTraceCache() bool {
 	for _, trace := range traces {
 		d.ibcTraceCache[trace.IBCDenom()] = trace
 	}
-	log.Printf("SYNC: IBC Denoms loaded: %v\n", len(traces))
+	d.logger.Info("SYNC: IBC Denoms loaded", "len(traces)", len(traces))
 
 	return true
 }
@@ -56,16 +54,16 @@ func (d *Indexer) preHeatDenomTraceCache() {
 		return
 	}
 
-	res, err := d.rpc.DenomTraces()
+	traces, err := d.rpc.DenomTraces()
 	if err != nil {
 		d.errCounter.Add(1)
-		log.Printf("Failed to fetch denom traces: %v\n", err)
+		d.logger.Warn("SYNC: Failed to fetch denom traces", "err", err)
 		return
 	}
 
-	for _, trace := range res {
+	for _, trace := range traces {
 		d.ibcTraceCache[trace.IBCDenom()] = trace
 	}
 
-	log.Printf("SYNC: IBC Denoms fetched: %v\n", len(res))
+	d.logger.Info("SYNC: IBC Denoms fetched", "len(traces)", len(traces))
 }
