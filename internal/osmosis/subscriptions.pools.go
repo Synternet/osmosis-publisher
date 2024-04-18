@@ -128,6 +128,7 @@ func (p *Publisher) handleMonitoredPools(height int64, blockTime time.Time, hash
 		"volume",
 		"pool",
 	)
+	p.messagesCounter.Add(1)
 }
 
 // handlePoolSubscriptions will parse events, determine what pools were involved,
@@ -219,6 +220,7 @@ func (p *Publisher) handlePoolSubscriptions(events <-chan ctypes.ResultEvent) er
 				"state",
 				"pools",
 			)
+			p.messagesCounter.Add(1)
 		}
 	}
 }

@@ -47,10 +47,14 @@ func (p *Publisher) handleBlocks(events <-chan ctypes.ResultEvent) error {
 
 func (p *Publisher) handleBlock(block *tmtypes.Block) {
 	p.blockCounter.Add(1)
+	p.blockHeight.Set(float64(block.Height))
+	p.blocksCounter.Add(1)
+
 	outBlock := p.rpc.translateBlock(block)
 	outBlock.Nonce = p.NewNonce()
 	p.Publish(
 		outBlock,
 		"block",
 	)
+	p.messagesCounter.Add(1)
 }

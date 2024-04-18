@@ -26,6 +26,8 @@ func (p *Publisher) handlePriceFeed(msg service.Message) {
 		return
 	}
 
+	p.pricesCounter.Add(1)
+
 	parts := strings.Split(msg.Subject(), ".")
 
 	err = p.indexer.SetLatestPrice(parts[len(parts)-1], "USD", quote.Price, time.Unix(quote.LastUpdated, 0))

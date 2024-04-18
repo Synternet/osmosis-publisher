@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/syntropynet/osmosis-publisher/pkg/repository"
 	"github.com/syntropynet/osmosis-publisher/pkg/types"
 
@@ -59,6 +60,12 @@ type rpc struct {
 	queueMaxSize   atomic.Uint64
 	maxQueueSize   uint64
 
+	mempoolHist       prometheus.Histogram
+	poolAllHist       prometheus.Histogram
+	poolVolumeHist    prometheus.Histogram
+	poolLiquidityHist prometheus.Histogram
+	denomTraceHist    prometheus.Histogram
+
 	getDenoms func(ibcTrace IBCDenomTrace) error
 }
 
@@ -87,6 +94,37 @@ func newRpc(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup
 		db:            db,
 		enccfg:        app.MakeEncodingConfig(),
 		getDenoms:     getDenoms,
+
+		mempoolHist: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Name: "osmosis_publisher_rpc_mempool_latency",
+				Help: "The time it takes to call Osmosis Full Node for receiving Mempool data",
+			},
+		),
+		poolAllHist: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Name: "osmosis_publisher_rpc_pools_latency",
+				Help: "The time it takes to call Osmosis Full Node for receiving liquidity pool state",
+			},
+		),
+		poolVolumeHist: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Name: "osmosis_publisher_rpc_volume_latency",
+				Help: "The time it takes to call Osmosis Full Node for receiving liquidity pool trading volume",
+			},
+		),
+		poolLiquidityHist: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Name: "osmosis_publisher_rpc_liquidity_latency",
+				Help: "The time it takes to call Osmosis Full Node for receiving liquidity pool total liquidity",
+			},
+		),
+		denomTraceHist: prometheus.NewHistogram(
+			prometheus.HistogramOpts{
+				Name: "osmosis_publisher_rpc_denom_trace_latency",
+				Help: "The time it takes to call Osmosis Full Node for receiving IBC Denom Trace",
+			},
+		),
 	}
 
 	logger.Info("Using RPC", "tendermint", tendermintUrl, "gRPC", grpcApiURL)
@@ -169,6 +207,7 @@ func (c *rpc) DenomTraces() ([]IBCTypes.DenomTrace, error) {
 			},
 		}
 		ctx, cancel := context.WithTimeout(c.ctx, time.Second)
+		now := time.Now()
 		res, err := c.ibcQueryClient.DenomTraces(ctx, req)
 		cancel()
 		if err != nil {
@@ -176,6 +215,7 @@ func (c *rpc) DenomTraces() ([]IBCTypes.DenomTrace, error) {
 			c.logger.Error("Failed to fetch denom traces", "err", err)
 			return traces, err
 		}
+		c.denomTraceHist.Observe(time.Since(now).Seconds())
 
 		traces = append(traces, res.DenomTraces...)
 
@@ -238,6 +278,7 @@ func (c *rpc) Mempool() ([]*types.Transaction, error) {
 	var limit int = 1000
 	ctx, cancel := context.WithTimeout(c.ctx, time.Second*5)
 	defer cancel()
+	now := time.Now()
 	res, err := c.tendermint.UnconfirmedTxs(ctx, &limit)
 	if err != nil {
 		c.errCounter.Add(1)
@@ -246,6 +287,7 @@ func (c *rpc) Mempool() ([]*types.Transaction, error) {
 	if res.Count == 0 {
 		return nil, nil
 	}
+	c.mempoolHist.Observe(time.Since(now).Seconds())
 
 	// NOTE: This should never be called asynchronously, therefore no need to synchronize
 	currentSet := make(map[string]struct{}, res.Count)
@@ -285,11 +327,13 @@ func (c *rpc) PoolsAt(height int64, ids ...uint64) ([]*pmtypes.PoolI, error) {
 		ctx, cancel := context.WithTimeout(c.ctx, time.Second*5)
 		ctx = ContextWithHeight(ctx, height)
 		defer cancel()
+		now := time.Now()
 		resp, err := c.pmQueryClient.AllPools(ctx, &queryproto.AllPoolsRequest{})
 		if err != nil {
 			c.errCounter.Add(1)
 			return nil, fmt.Errorf("failed retrieving all pools: %w", err)
 		}
+		c.poolAllHist.Observe(time.Since(now).Seconds())
 		return c.translatePools(resp.Pools)
 	}
 
@@ -297,12 +341,14 @@ func (c *rpc) PoolsAt(height int64, ids ...uint64) ([]*pmtypes.PoolI, error) {
 	for i, id := range ids {
 		ctx, cancel := context.WithTimeout(c.ctx, time.Second*5)
 		ctx = ContextWithHeight(ctx, height)
+		now := time.Now()
 		resp, err := c.pmQueryClient.Pool(ctx, &queryproto.PoolRequest{PoolId: id})
 		cancel()
 		if err != nil {
 			c.errCounter.Add(1)
 			return nil, fmt.Errorf("failed retrieving pool %d: %w", id, err)
 		}
+		c.poolAllHist.Observe(time.Since(now).Seconds())
 		pools[i] = resp.Pool
 	}
 
@@ -314,12 +360,14 @@ func (c *rpc) PoolsTotalLiquidityAt(height int64, ids ...uint64) ([]types.PoolLi
 	for i, id := range ids {
 		ctx, cancel := context.WithTimeout(c.ctx, time.Second)
 		ctx = ContextWithHeight(ctx, height)
+		now := time.Now()
 		resp, err := c.pmQueryClient.TotalPoolLiquidity(ctx, &queryproto.TotalPoolLiquidityRequest{PoolId: id})
 		cancel()
 		if err != nil {
 			c.errCounter.Add(1)
 			return nil, fmt.Errorf("failed retrieving pool liquidity %d: %w", id, err)
 		}
+		c.poolLiquidityHist.Observe(time.Since(now).Seconds())
 		pools[i] = types.PoolLiquidity{
 			PoolId:    id,
 			Liquidity: resp.Liquidity,
@@ -334,12 +382,14 @@ func (c *rpc) PoolsVolumeAt(height int64, ids ...uint64) ([]types.PoolVolume, er
 	for i, id := range ids {
 		ctx, cancel := context.WithTimeout(c.ctx, time.Second)
 		ctx = ContextWithHeight(ctx, height)
+		now := time.Now()
 		resp, err := c.pmQueryClient.TotalVolumeForPool(ctx, &queryproto.TotalVolumeForPoolRequest{PoolId: id})
 		cancel()
 		if err != nil {
 			c.errCounter.Add(1)
 			return nil, fmt.Errorf("failed retrieving pool volume %d: %w", id, err)
 		}
+		c.poolVolumeHist.Observe(time.Since(now).Seconds())
 		pools[i] = types.PoolVolume{
 			PoolId: id,
 			Volume: resp.Volume,
