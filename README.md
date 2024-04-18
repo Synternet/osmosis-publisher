@@ -114,9 +114,9 @@ NATS_SUB_JWT=<subscriber JWT>
 NATS_SUB_NKEY=<subscriber seed>
 ```
 
-Please go to Data Layer Developer portal and create a subscriber for [this stream](https://developer-portal.syntropynet.com/subscribe/amber1m9n5zdh7k4c6ea8ymka6wkhv92rz3smlereewu/AACX7RWALJHABWRBXTHAFVDJ6YCXRFI7LUN7WGGEYORS6ZKICPPZDZT6/191/).
+Please go to Data Layer Developer portal and create a subscriber for [this stream](https://developer-portal.syntropynet.com/subscribe/amber1m9n5zdh7k4c6ea8ymka6wkhv92rz3smlereewu/AACX7RWALJHABWRBXTHAFVDJ6YCXRFI7LUN7WGGEYORS6ZKICPPZDZT6/191/). You can refer to this [guide](https://docs.syntropynet.com/build/data-layer/developer-portal/subscribe-to-streams).
 
-Doing this will generate a Nkey that should be used with Data Layer SDK User Credentials generator tool like so:
+Doing this will generate a Nkey(keep this key safe!) that should be used with Data Layer SDK User Credentials generator tool like so:
 
 ```bash
 # this will output JWT and NKEY individually. You can add -creds option to generate credentials file that will contain both.
