@@ -6,7 +6,7 @@
 
 Establishes connection with Osmosis node and publishes Osmosis blockchain data to Syntropy Data Layer via NATS connection.
 
-# Usage
+## Usage
 
 Building from source.
 
@@ -105,7 +105,7 @@ DB_PASSWORD=password
 ### Consuming Prices data
 
 ```bash
-PRICES_SUBJECT=syntropy.prices
+PRICES_SUBJECT=syntropy_defi.price.single.OSMO
 NATS_SUB_URL=nats://dal-broker
 
 # Please use only one of NATS_SUB_CREDS or NATS_SUB_JWT+NATS_SUB_NKEY at a time
@@ -114,9 +114,28 @@ NATS_SUB_JWT=<subscriber JWT>
 NATS_SUB_NKEY=<subscriber seed>
 ```
 
-NOTE: Osmosis publisher will create a durable JetStream consumer for Subscriber NATS account. Changing Publisher name will result in an error. In order to fix the error you must:
+Please go to Data Layer Developer portal and create a subscriber for [this stream](https://developer-portal.syntropynet.com/subscribe/amber1m9n5zdh7k4c6ea8ymka6wkhv92rz3smlereewu/AACX7RWALJHABWRBXTHAFVDJ6YCXRFI7LUN7WGGEYORS6ZKICPPZDZT6/191/).
 
-- Either create another subscriber,
+Doing this will generate a Nkey that should be used with Data Layer SDK User Credentials generator tool like so:
+
+```bash
+# this will output JWT and NKEY individually. You can add -creds option to generate credentials file that will contain both.
+go run https://github.com/SyntropyNet/data-layer-sdk/cmd/gen-user@latest
+```
+
+Follow the instructions provided by this tool and obtain credentials to be used for prices stream.
+
+You can test the credentials with NATS cli tool to see if everything went smoothly(you should be receiving messages, at least on `syntropy_defi.price.telemetry` subject):
+
+```bash
+nats --server nats://dal-broker --creds subscriber.creds sub "syntorpy_defi.price.>" --headers-only
+```
+
+#### Experimental Jetstream Consumer
+
+Osmosis publisher will create a durable JetStream consumer for Subscriber NATS account. Changing Publisher name will result in an error. In order to fix the error you must:
+
+- Either create anotehr subscriber,
 - Or use NATS cli tool to remove any consumers.
 
 Note that doing so you will lose price history and pool trading volume estimation will be less accurate
