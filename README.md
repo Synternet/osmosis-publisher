@@ -59,6 +59,11 @@ PUBLISHER_NAME=osmosis
 Note: instead of user `NATS_NKEY` and `NATS_JWT` single value of `NATS_ACC_NKEY` can be supplied. In Syntropy Data Layer Developer Portal
 this is called `Access Token`. See [here](https://docs.syntropynet.com/build/data-layer/developer-portal/data-layer-authentication#access-token) for more details.
 
+## Things to consider
+
+- Osmosis gRPC should be configured at 9090 port
+- gRPC endpoint is HTTP/2, thus any proxies or load balancers should be configured appropriately
+
 ## Telemetry
 
 Osmosis publisher sends telemetry data regularly on `{prefix}.{name}.telemetry` subject. The contents of this message look something like this:
@@ -88,6 +93,90 @@ There are these publisher metrics available:
 - osmosis_publisher_rpc_denom_trace_latency
 
 NOTE: `osmosis_publisher_uptime` metric is updated at the same rate telemetry messages are sentout.
+
+## Indexing Liquidity Pool Historical data
+
+Osmosis publisher has liquidity pool data indexer implemented. For it to work there needs to be a database configured and a price subscriber created on the Data Layer Developer Portal. 
+Below are the default values:
+
+```bash
+OSMOSIS_POOLS=1,1077,1223,678,1251,1265,1133,1220,1247,1135,1221,1248
+OSMOSIS_BLOCKS=20000
+```
+
+- `OSMOSIS_POOLS` environment variable is a comma separated list of osmosis pools to monitor.
+- `OSMOSIS_BLOCKS` environment variable specifies how many blocks to look back. This parameter determines the size of the database and Osmosis node pruning parameters.
+
+In order for the indexer to work, Osmosis full node must be able to provide historical data at least `OSMOSIS_BLOCKS` back from the current height. Therefore pruning must be configured
+in such a way so that there are always at least `OSMOSIS_BLOCKS` number of states.
+
+### Database
+
+These options select the database(currently SQLite):
+
+```bash
+DB_HOST=db.sqlite
+DB_NAME=sqlite
+DB_USER=
+DB_NAME=
+```
+
+Typical size of the database is about 1GB with default parameters. 
+
+It is possible to configure a PostgreSQL database by providing additional options:
+
+```bash
+DB_HOST=postgres.hostname
+DB_PORT=5432
+DB_NAME=osmosis
+DB_USER=osmosis
+DB_PASSWORD=password
+```
+
+### Consuming Prices data
+
+```bash
+# This is the default value for PRICES_SUBJECT, so it can be omitted from the environment config
+PRICES_SUBJECT=syntropy_defi.price.single.OSMO
+NATS_SUB_URL=nats://dal-broker
+
+# Please use only one of NATS_SUB_CREDS or NATS_SUB_JWT+NATS_SUB_NKEY at a time
+NATS_SUB_CREDS=subscriber.creds
+NATS_SUB_JWT=<subscriber JWT>
+NATS_SUB_NKEY=<subscriber seed>
+```
+
+Please go to Data Layer Developer portal and create a subscriber for [this stream](https://developer-portal.syntropynet.com/subscribe/amber1m9n5zdh7k4c6ea8ymka6wkhv92rz3smlereewu/AACX7RWALJHABWRBXTHAFVDJ6YCXRFI7LUN7WGGEYORS6ZKICPPZDZT6/191/). You can refer to this [guide](https://docs.syntropynet.com/build/data-layer/developer-portal/subscribe-to-streams).
+
+Doing this will generate a Nkey(keep this key safe!) that should be used with Data Layer SDK User Credentials generator tool like so:
+
+```bash
+# this will output JWT and NKEY individually. You can add -creds option to generate credentials file that will contain both.
+go run https://github.com/SyntropyNet/data-layer-sdk/cmd/gen-user@latest
+```
+
+Follow the instructions provided by this tool and obtain credentials to be used for prices stream.
+
+You can test the credentials with NATS cli tool to see if everything went smoothly(you should be receiving messages, at least on `syntropy_defi.price.telemetry` subject):
+
+```bash
+nats --server nats://dal-broker --creds subscriber.creds sub "syntorpy_defi.price.>" --headers-only
+```
+
+#### Experimental Jetstream Consumer
+
+Osmosis publisher will create a durable JetStream consumer for Subscriber NATS account. Changing Publisher name will result in an error. In order to fix the error you must:
+
+- Either create anotehr subscriber,
+- Or use NATS cli tool to remove any consumers.
+
+Note that doing so you will lose price history and pool trading volume estimation will be less accurate
+
+To remove the consumer:
+
+```bash
+nats consumer rm --server nats://dal-broker --creds=subscriber.creds
+```
 
 ## Docker
 
