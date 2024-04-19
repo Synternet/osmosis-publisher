@@ -66,7 +66,8 @@ this is called `Access Token`. See [here](https://docs.syntropynet.com/build/dat
 
 ## Indexing Liquidity Pool Historical data
 
-Osmosis publisher has liquidity pool data indexer implemented. For it to work there needs to be a database configured and a price subscriber created on the Data Layer Developer Portal.
+Osmosis publisher has liquidity pool data indexer implemented. For it to work there needs to be a database configured and a price subscriber created on the Data Layer Developer Portal. 
+Below are the default values:
 
 ```bash
 OSMOSIS_POOLS=1,1077,1223,678,1251,1265,1133,1220,1247,1135,1221,1248
@@ -105,6 +106,7 @@ DB_PASSWORD=password
 ### Consuming Prices data
 
 ```bash
+# This is the default value for PRICES_SUBJECT, so it can be omitted from the environment config
 PRICES_SUBJECT=syntropy_defi.price.single.OSMO
 NATS_SUB_URL=nats://dal-broker
 
