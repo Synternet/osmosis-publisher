@@ -48,7 +48,9 @@ type Publisher struct {
 	pricesCounter       prometheus.Counter
 
 	// Gauges
-	blockHeight prometheus.Gauge
+	blockHeight      prometheus.Gauge
+	uptimeGauge      prometheus.Gauge
+	startupTimestamp time.Time
 
 	// Histograms
 }
@@ -81,6 +83,11 @@ func New(db repository.Repository, opts ...options.Option) (*Publisher, error) {
 			Name: "osmosis_publisher_block_height",
 			Help: "The latest block height as seen from the Osmosis blockchain",
 		}),
+		uptimeGauge: promauto.NewGauge(prometheus.GaugeOpts{
+			Name: "osmosis_publisher_uptime",
+			Help: "The current duration in seconds the publisher is running",
+		}),
+		startupTimestamp: time.Now(),
 	}
 
 	ret.Configure(opts...)
@@ -218,6 +225,8 @@ func (p *Publisher) Close() error {
 }
 
 func (p *Publisher) getStatus() map[string]any {
+	p.uptimeGauge.Set(time.Since(p.startupTimestamp).Seconds())
+
 	return map[string]any{
 		"blocks":         p.blockCounter.Swap(0),
 		"unknown_events": p.evtOtherCounter.Swap(0),
