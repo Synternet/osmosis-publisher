@@ -130,7 +130,7 @@ Follow the instructions provided by this tool and obtain credentials to be used 
 You can test the credentials with NATS cli tool to see if everything went smoothly(you should be receiving messages, at least on `syntropy_defi.price.telemetry` subject):
 
 ```bash
-nats --server nats://dal-broker --creds subscriber.creds sub "syntorpy_defi.price.>" --headers-only
+nats --server nats://dal-broker --creds subscriber.creds sub "syntropy_defi.price.>" --headers-only
 ```
 
 #### Experimental Jetstream Consumer
