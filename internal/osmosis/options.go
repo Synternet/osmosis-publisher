@@ -17,6 +17,7 @@ var (
 	PoolIdsParam       = "pids"
 	BlocksToIndexParam = "bti"
 	PriceSubjectParam  = "prices"
+	MetricsParam       = "metrics"
 )
 
 func WithTendermintAPI(url string) options.Option {
@@ -94,4 +95,14 @@ func WithPriceSubject(url string) options.Option {
 
 func (p *Publisher) PriceSubject() string {
 	return options.Param(p.Options, PriceSubjectParam, "syntropy_defi.price.OSMO")
+}
+
+func WithMetrics(url string) options.Option {
+	return func(o *options.Options) {
+		service.WithParam(MetricsParam, url)(o)
+	}
+}
+
+func (p *Publisher) MetricsURL() string {
+	return options.Param(p.Options, MetricsParam, "")
 }

@@ -82,6 +82,10 @@ if [ ! -z "$TELEMETRY_PERIOD" ]; then
   CMD="$CMD --telemetry-period $TELEMETRY_PERIOD"
 fi
 
+if [ ! -z "$PROMETHEUS_EXPORT" ]; then
+  CMD="$CMD --prometheus-export $PROMETHEUS_EXPORT"
+fi
+
 if [ ! -z "$VERBOSE" ]; then
   CMD="$CMD --verbose"
 fi

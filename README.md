@@ -64,6 +64,36 @@ this is called `Access Token`. See [here](https://docs.syntropynet.com/build/dat
 - Osmosis gRPC should be configured at 9090 port
 - gRPC endpoint is HTTP/2, thus any proxies or load balancers should be configured appropriately
 
+## Telemetry
+
+Osmosis publisher sends telemetry data regularly on `{prefix}.{name}.telemetry` subject. The contents of this message look something like this:
+
+```json
+{"nonce":"207aa","status":{"blocks":1,"errors":0,"events":{"max_queue":40,"queue":1,"skipped":0,"total":7},"goroutines":39,"indexer":{"blocks_per_hour":1142,"errors":0,"ibc":{"cache_misses":9,"tokens":916},"pool":{"current_height":15040158,"sync_count":0}},"mempool.txs":8,"messages":{"bytes_in":0,"bytes_out":496916,"in":0,"out":17,"out_queue":0,"out_queue_cap":1000},"period":"3.000121219s","pools":0,"published":0,"txs":6,"unknown_events":0,"uptime":"110h51m42.00052816s"}}
+```
+
+You can configure the interval of these messages by setting `TELEMETRY_PERIOD` environment variable(default is `"3s"`).
+
+Additionally you can enable Prometheus exporter of standard Golang metrics as well as publisher-specific by setting `METRICS_URL` to attach to that specific address and port.
+For esample `0.0.0.0:2112` will export Prometheus metrics on all interfaces port 2112.
+
+There are these publisher metrics available:
+
+- osmosis_publisher_blocks
+- osmosis_publisher_transactions
+- osmosis_publisher_transactions_mempool
+- osmosis_publisher_messages
+- osmosis_publisher_prices
+- osmosis_publisher_block_height
+- osmosis_publisher_uptime
+- osmosis_publisher_rpc_mempool_latency
+- osmosis_publisher_rpc_pools_latency
+- osmosis_publisher_rpc_volume_latency
+- osmosis_publisher_rpc_liquidity_latency
+- osmosis_publisher_rpc_denom_trace_latency
+
+NOTE: `osmosis_publisher_uptime` metric is updated at the same rate telemetry messages are sentout.
+
 ## Indexing Liquidity Pool Historical data
 
 Osmosis publisher has liquidity pool data indexer implemented. For it to work there needs to be a database configured and a price subscriber created on the Data Layer Developer Portal. 

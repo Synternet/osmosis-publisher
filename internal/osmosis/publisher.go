@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"sync/atomic"
 	"time"
 
@@ -16,6 +17,10 @@ import (
 	"github.com/syntropynet/osmosis-publisher/pkg/types"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Publisher struct {
@@ -34,12 +39,55 @@ type Publisher struct {
 	poolCounter       atomic.Uint64
 	errCounter        atomic.Uint64
 	evtOtherCounter   atomic.Uint64
+
+	// Total counters
+	blocksCounter       prometheus.Counter
+	transactionsCounter prometheus.Counter
+	mempoolCounter      prometheus.Counter
+	messagesCounter     prometheus.Counter
+	pricesCounter       prometheus.Counter
+
+	// Gauges
+	blockHeight      prometheus.Gauge
+	uptimeGauge      prometheus.Gauge
+	startupTimestamp time.Time
+
+	// Histograms
 }
 
 func New(db repository.Repository, opts ...options.Option) (*Publisher, error) {
 	ret := &Publisher{
 		Service: &service.Service{},
 		db:      db,
+		blocksCounter: promauto.NewCounter(prometheus.CounterOpts{
+			Name: "osmosis_publisher_blocks",
+			Help: "The total number of processed blocks",
+		}),
+		transactionsCounter: promauto.NewCounter(prometheus.CounterOpts{
+			Name: "osmosis_publisher_transactions",
+			Help: "The total number of processed transactions",
+		}),
+		mempoolCounter: promauto.NewCounter(prometheus.CounterOpts{
+			Name: "osmosis_publisher_transactions_mempool",
+			Help: "The total number of processed mempool transactions",
+		}),
+		messagesCounter: promauto.NewCounter(prometheus.CounterOpts{
+			Name: "osmosis_publisher_messages",
+			Help: "The total number of messages published",
+		}),
+		pricesCounter: promauto.NewCounter(prometheus.CounterOpts{
+			Name: "osmosis_publisher_prices",
+			Help: "The total number of processed price messages",
+		}),
+		blockHeight: promauto.NewGauge(prometheus.GaugeOpts{
+			Name: "osmosis_publisher_block_height",
+			Help: "The latest block height as seen from the Osmosis blockchain",
+		}),
+		uptimeGauge: promauto.NewGauge(prometheus.GaugeOpts{
+			Name: "osmosis_publisher_uptime",
+			Help: "The current duration in seconds the publisher is running",
+		}),
+		startupTimestamp: time.Now(),
 	}
 
 	ret.Configure(opts...)
@@ -107,6 +155,16 @@ func (p *Publisher) Start() context.Context {
 		return p.Context
 	}
 
+	if metricsUrl := p.MetricsURL(); metricsUrl != "" {
+		p.Group.Go(
+			func() error {
+				http.Handle("/metrics", promhttp.Handler())
+				http.ListenAndServe(metricsUrl, nil)
+				return nil
+			},
+		)
+	}
+
 	mempoolTicker := time.NewTicker(p.MempoolPeriod())
 	p.Group.Go(
 		func() error {
@@ -125,6 +183,7 @@ func (p *Publisher) Start() context.Context {
 					}
 					if pool != nil {
 						p.mempoolMessages.Add(uint64(len(pool)))
+						p.mempoolCounter.Add(float64(len(pool)))
 						p.Publish(
 							&types.Mempool{
 								Nonce:        p.NewNonce(),
@@ -132,6 +191,7 @@ func (p *Publisher) Start() context.Context {
 							},
 							"mempool",
 						)
+						p.messagesCounter.Add(1)
 					}
 				}
 			}
@@ -165,6 +225,8 @@ func (p *Publisher) Close() error {
 }
 
 func (p *Publisher) getStatus() map[string]any {
+	p.uptimeGauge.Set(time.Since(p.startupTimestamp).Seconds())
+
 	return map[string]any{
 		"blocks":         p.blockCounter.Swap(0),
 		"unknown_events": p.evtOtherCounter.Swap(0),

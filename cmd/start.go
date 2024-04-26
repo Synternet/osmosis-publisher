@@ -20,6 +20,7 @@ var (
 	flagGRPCAPI       *string
 	flagPricesSubject *string
 	flagBlocks        *uint64
+	metricsUrl        *string
 )
 
 // startCmd represents the nft command
@@ -58,6 +59,7 @@ var startCmd = &cobra.Command{
 			osmosis.WithPoolIds(poolIds),
 			osmosis.WithBlocksToIndex(*flagBlocks),
 			osmosis.WithPriceSubject(*flagPricesSubject),
+			osmosis.WithMetrics(*metricsUrl),
 		)
 		if publisher == nil {
 			return
@@ -84,6 +86,7 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 
 	const (
+		METRICS_URL        = "PROMETHEUS_EXPORT"
 		OSMOSIS_TENDERMINT = "TENDERMINT_API"
 		OSMOSIS_RPC        = "APP_API"
 		OSMOSIS_GRPC       = "GRPC_API"
@@ -100,6 +103,8 @@ func init() {
 	setDefault(OSMOSIS_POOLS, "1,1077,1223,678,1251,1265,1133,1220,1247,1135,1221,1248")
 	setDefault(OSMOSIS_BLOCKS, "20000")
 	setDefault(PRICES_SUBJECT, "syntropy_defi.price.single.OSMO")
+
+	metricsUrl = startCmd.Flags().String("prometheus-export", os.Getenv(METRICS_URL), "Interface address and port for Prometheus export (e.g. 0.0.0.0:2112)")
 
 	flagPublisherName = startCmd.Flags().String("publisher-name", os.Getenv(OSMOSIS_NAME), "NATS publisher name as in {prefix}.{name}.>")
 	flagTendermintAPI = startCmd.Flags().String("tendermint-api", os.Getenv(OSMOSIS_TENDERMINT), "Full address to the Tendermint RPC")
