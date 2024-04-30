@@ -89,6 +89,7 @@ var rootCmd = &cobra.Command{
 			}
 		}
 
+		slog.Info("Creating Publisher NATS connection")
 		conn, err := options.MakeNats("Osmosis Publisher", *flagNatsPubUrls, *flagUserPubCreds, *flagNkeyPub, *flagJWTPub, *flagCACert, *flagTLSClientCert, *flagTLSKey)
 		if err != nil {
 			panic(fmt.Errorf("failed to connect to publisher NATS %s: %w", *flagNatsPubUrls, err))
@@ -96,6 +97,7 @@ var rootCmd = &cobra.Command{
 		natsPubConnection = conn
 		setErrorHandlers(conn)
 
+		slog.Info("Creating Price Subscriber NATS connection")
 		conn, err = options.MakeNats("Osmosis Subscriber", *flagNatsSubUrls, *flagUserSubCreds, *flagNkeySub, *flagJWTSub, *flagCACert, *flagTLSClientCert, *flagTLSKey)
 		if err != nil {
 			panic(fmt.Errorf("failed to connect to subscriber NATS %s: %w", *flagNatsSubUrls, err))
@@ -122,11 +124,15 @@ var rootCmd = &cobra.Command{
 		database = repo
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
-		if natsPubConnection == nil {
-			return
+		if natsPubConnection != nil {
+			natsPubConnection.Close()
 		}
-		natsPubConnection.Close()
-		database.Close()
+		if natsSubConnection != nil {
+			natsSubConnection.Close()
+		}
+		if database != nil {
+			database.Close()
+		}
 	},
 }
 
@@ -148,7 +154,7 @@ func init() {
 		DB_NAME            = "DB_NAME"
 		LOG_LEVEL          = "LOG_LEVEL"
 	)
-	setDefault(PUBLISHER_PREFIX, "syntropy")
+	setDefault(PUBLISHER_PREFIX, "synternet")
 	setDefault(DB_HOST, "postgres")
 	setDefault(DB_PORT, "5432")
 	setDefault(DB_USER, "osmopub_user")

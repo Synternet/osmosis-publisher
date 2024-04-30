@@ -26,10 +26,10 @@ import (
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	types1 "github.com/cosmos/cosmos-sdk/codec/types"
 
-	"github.com/osmosis-labs/osmosis/v22/app"
-	"github.com/osmosis-labs/osmosis/v22/app/params"
-	"github.com/osmosis-labs/osmosis/v22/x/poolmanager/client/queryproto"
-	pmtypes "github.com/osmosis-labs/osmosis/v22/x/poolmanager/types"
+	"github.com/osmosis-labs/osmosis/v24/app"
+	"github.com/osmosis-labs/osmosis/v24/app/params"
+	"github.com/osmosis-labs/osmosis/v24/x/poolmanager/client/queryproto"
+	pmtypes "github.com/osmosis-labs/osmosis/v24/x/poolmanager/types"
 
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/cosmos/cosmos-sdk/types/query"

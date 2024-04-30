@@ -14,7 +14,7 @@ import (
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
-	pmtypes "github.com/osmosis-labs/osmosis/v22/x/poolmanager/types"
+	pmtypes "github.com/osmosis-labs/osmosis/v24/x/poolmanager/types"
 )
 
 var _ indexer.Indexer = (*Indexer)(nil)

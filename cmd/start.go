@@ -65,7 +65,7 @@ var startCmd = &cobra.Command{
 			return
 		}
 		if err != nil {
-			slog.Error("publisher failed", err)
+			slog.Error("publisher failed", "err", err)
 			return
 		}
 
@@ -128,7 +128,7 @@ func init() {
 	blocks, err := strconv.ParseUint(envBlocks, 10, 64)
 	if err != nil {
 		blocks = 17000
-		slog.Warn("Bad number of blocks format", "error", err, "default", blocks)
+		slog.Warn("Bad number of blocks format", "err", err, "default", blocks)
 	}
 	flagBlocks = startCmd.Flags().Uint64("blocks-to-index", blocks, "Number of previous blocks to keep track of")
 }
