@@ -18,8 +18,8 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	gammtypes "github.com/osmosis-labs/osmosis/v22/x/gamm/types"
-	pmtypes "github.com/osmosis-labs/osmosis/v22/x/poolmanager/types"
+	gammtypes "github.com/osmosis-labs/osmosis/v24/x/gamm/types"
+	pmtypes "github.com/osmosis-labs/osmosis/v24/x/poolmanager/types"
 )
 
 type TxProtoGetter interface {

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -41,7 +42,7 @@ func setDefault(field string, value string) {
 // CreateUser creates NATS user NKey and JWT from given account seed NKey.
 func CreateUser(seed string) (*string, *string, error) {
 	accountSeed := []byte(seed)
-
+	slog.Info("Creating user from NATS Account NKEY seed")
 	accountKeys, err := nkeys.FromSeed(accountSeed)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get account key from seed: %w", err)

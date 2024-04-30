@@ -9,10 +9,10 @@ import (
 
 	"github.com/syntropynet/osmosis-publisher/pkg/types"
 
-	cltypes "github.com/osmosis-labs/osmosis/v22/x/concentrated-liquidity/types"
-	wasmtypes "github.com/osmosis-labs/osmosis/v22/x/cosmwasmpool/types"
-	gammtypes "github.com/osmosis-labs/osmosis/v22/x/gamm/types"
-	pmtypes "github.com/osmosis-labs/osmosis/v22/x/poolmanager/types"
+	cltypes "github.com/osmosis-labs/osmosis/v24/x/concentrated-liquidity/types"
+	wasmtypes "github.com/osmosis-labs/osmosis/v24/x/cosmwasmpool/types"
+	gammtypes "github.com/osmosis-labs/osmosis/v24/x/gamm/types"
+	pmtypes "github.com/osmosis-labs/osmosis/v24/x/poolmanager/types"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 )
