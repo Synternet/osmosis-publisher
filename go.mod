@@ -1,4 +1,4 @@
-module github.com/synternet/osmosis-publisher
+module github.com/syntropynet/osmosis-publisher
 
 go 1.21
 
