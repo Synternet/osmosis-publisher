@@ -5,7 +5,7 @@ import (
 	"log/slog"
 
 	_ "github.com/lib/pq"
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
+	"github.com/synternet/osmosis-publisher/pkg/repository"
 	"gorm.io/gorm"
 )
 

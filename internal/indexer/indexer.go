@@ -3,13 +3,14 @@ package indexer
 import (
 	"context"
 	"log/slog"
+	"strconv"
 	"sync/atomic"
 	"time"
 
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/syntropynet/osmosis-publisher/pkg/indexer"
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
-	"github.com/syntropynet/osmosis-publisher/pkg/types"
+	"github.com/synternet/osmosis-publisher/pkg/indexer"
+	"github.com/synternet/osmosis-publisher/pkg/repository"
+	"github.com/synternet/osmosis-publisher/pkg/types"
 	"golang.org/x/sync/errgroup"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -101,22 +102,16 @@ func New(ctx context.Context, cancel context.CancelCauseFunc, group *errgroup.Gr
 	return ret, nil
 }
 
-func (d *Indexer) GetStatus() map[string]any {
-	return map[string]any{
-		"indexer": map[string]any{
-			"errors":          d.errCounter.Load(),
-			"blocks_per_hour": d.blocksPerHour.Load(),
-			"ibc": map[string]any{
-				"tokens":       len(d.ibcTraceCache),
-				"cache_misses": d.ibcMisses.Load(),
-			},
-			"pool": map[string]any{
-				"current_height": d.currentBlockHeight.Load(),
-				"sync_count":     len(d.syncHeights),
-				// "errors":          d.poolErrors.Load(),
-				// "misses":          d.poolMisses.Load(),
-			},
-		},
+func (d *Indexer) GetStatus() map[string]string {
+	return map[string]string{
+		"indexer_errors":              strconv.FormatUint(d.errCounter.Load(), 10),
+		"indexer_blocks_per_hour":     strconv.FormatInt(d.blocksPerHour.Load(), 10),
+		"indexer_ibc_tokens":          strconv.Itoa(len(d.ibcTraceCache)),
+		"indexer_ibc_cache_misses":    strconv.FormatUint(d.ibcMisses.Load(), 10),
+		"indexer_pool_current_height": strconv.FormatUint(d.currentBlockHeight.Load(), 10),
+		"indexer_pool_sync_count":     strconv.Itoa(len(d.syncHeights)),
+		// "indexer_pool_errors":       strconv.FormatUint(d.poolErrors.Load(), 10),
+		// "indexer_pool_misses":       strconv.FormatUint(d.poolMisses.Load(), 10),
 	}
 }
 

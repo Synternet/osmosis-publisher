@@ -7,7 +7,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/syntropynet/osmosis-publisher/pkg/types"
+	"github.com/synternet/osmosis-publisher/pkg/types"
 	"golang.org/x/exp/maps"
 )
 

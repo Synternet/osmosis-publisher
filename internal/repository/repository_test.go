@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/syntropynet/osmosis-publisher/internal/repository"
-	repotypes "github.com/syntropynet/osmosis-publisher/pkg/repository"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	_ "github.com/lib/pq"
+	"github.com/synternet/osmosis-publisher/internal/repository"
+	repotypes "github.com/synternet/osmosis-publisher/pkg/repository"
 )
 
 func TestRepository_Latest(t *testing.T) {

@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
-	"github.com/syntropynet/osmosis-publisher/pkg/types"
+	"github.com/synternet/osmosis-publisher/pkg/repository"
+	"github.com/synternet/osmosis-publisher/pkg/types"
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -399,20 +399,18 @@ func (c *rpc) PoolsVolumeAt(height int64, ids ...uint64) ([]types.PoolVolume, er
 	return pools, nil
 }
 
-func (p *rpc) getStatus() map[string]any {
+func (p *rpc) getStatus() map[string]string {
 	queueSize := p.queueMaxSize.Swap(0)
 	if queueSize > p.maxQueueSize {
 		p.maxQueueSize = queueSize
 	}
 
-	return map[string]any{
-		"errors": p.errCounter.Swap(0),
-		"events": map[string]any{
-			"total":     p.evtCounter.Swap(0),
-			"skipped":   p.evtSkipCounter.Load(),
-			"queue":     queueSize,
-			"max_queue": p.maxQueueSize,
-		},
+	return map[string]string{
+		"errors":           strconv.FormatUint(p.errCounter.Swap(0), 10),
+		"events_total":     strconv.FormatUint(p.evtCounter.Swap(0), 10),
+		"events_skipped":   strconv.FormatUint(p.evtSkipCounter.Load(), 10),
+		"events_queue":     strconv.FormatUint(queueSize, 10),
+		"events_max_queue": strconv.FormatUint(p.maxQueueSize, 10),
 	}
 }
 

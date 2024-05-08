@@ -9,8 +9,8 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/syntropynet/data-layer-sdk/pkg/service"
-	"github.com/syntropynet/osmosis-publisher/internal/osmosis"
+	"github.com/synternet/data-layer-sdk/pkg/service"
+	"github.com/synternet/osmosis-publisher/internal/osmosis"
 )
 
 var (

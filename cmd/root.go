@@ -9,12 +9,12 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/spf13/cobra"
-	"github.com/syntropynet/data-layer-sdk/pkg/options"
+	"github.com/synternet/data-layer-sdk/pkg/options"
 	"gorm.io/gorm"
 
-	"github.com/syntropynet/osmosis-publisher/internal/repository"
-	"github.com/syntropynet/osmosis-publisher/internal/repository/pg"
-	"github.com/syntropynet/osmosis-publisher/internal/repository/sqlite"
+	"github.com/synternet/osmosis-publisher/internal/repository"
+	"github.com/synternet/osmosis-publisher/internal/repository/pg"
+	"github.com/synternet/osmosis-publisher/internal/repository/sqlite"
 )
 
 var (

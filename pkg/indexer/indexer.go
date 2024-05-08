@@ -4,7 +4,7 @@ import (
 	"time"
 
 	ibctypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/syntropynet/osmosis-publisher/pkg/types"
+	"github.com/synternet/osmosis-publisher/pkg/types"
 )
 
 type Indexer interface {
@@ -27,6 +27,6 @@ type Indexer interface {
 	CalculateVolumes(poolStatuses []types.PoolStatus) error
 
 	// GetStatus used for telemetry and will return a map of status variables
-	GetStatus() map[string]any
+	GetStatus() map[string]string
 	AverageBlockTime() time.Duration
 }

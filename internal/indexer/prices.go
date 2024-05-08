@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
+	"github.com/synternet/osmosis-publisher/pkg/repository"
 )
 
 var tokenMapping = map[string]float64{

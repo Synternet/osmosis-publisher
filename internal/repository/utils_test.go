@@ -5,9 +5,9 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/syntropynet/osmosis-publisher/internal/repository"
-	"github.com/syntropynet/osmosis-publisher/internal/repository/sqlite"
-	repotypes "github.com/syntropynet/osmosis-publisher/pkg/repository"
+	"github.com/synternet/osmosis-publisher/internal/repository"
+	"github.com/synternet/osmosis-publisher/internal/repository/sqlite"
+	repotypes "github.com/synternet/osmosis-publisher/pkg/repository"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
