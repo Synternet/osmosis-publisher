@@ -1,4 +1,4 @@
-module github.com/syntropynet/osmosis-publisher
+module github.com/Synternet/osmosis-publisher
 
 go 1.21
 
@@ -9,17 +9,18 @@ require (
 	github.com/cosmos/cosmos-sdk v0.47.8
 	github.com/cosmos/ibc-go/v7 v7.4.0
 	github.com/lib/pq v1.10.9
-	github.com/nats-io/jwt v0.3.2
+	github.com/nats-io/jwt v1.2.2
 	github.com/nats-io/nats.go v1.31.0
 	github.com/nats-io/nkeys v0.4.6
 	github.com/osmosis-labs/osmosis/v24 v24.0.4
 	github.com/prometheus/client_golang v1.19.0
 	github.com/spf13/cobra v1.8.0
-	github.com/syntropynet/data-layer-sdk v0.2.0
-	github.com/syntropynet/price-publisher v0.1.0
+	github.com/Synternet/data-layer-sdk v0.3.0
+	github.com/Synternet/price-publisher v0.3.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	golang.org/x/sync v0.6.0
 	google.golang.org/grpc v1.62.1
+	google.golang.org/protobuf v1.33.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/driver/sqlite v1.5.4
 	gorm.io/gorm v1.25.5
@@ -153,6 +154,7 @@ require (
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
+	github.com/nats-io/jwt/v2 v2.4.1 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20220708102147-0a8a51822cae // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -209,7 +211,6 @@ require (
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240125205218-1f4bbc51befe // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240125205218-1f4bbc51befe // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

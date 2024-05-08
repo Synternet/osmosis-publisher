@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
+	"github.com/Synternet/osmosis-publisher/pkg/repository"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	_ "github.com/lib/pq"
 	"gorm.io/gorm/clause"

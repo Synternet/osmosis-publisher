@@ -5,16 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"sync/atomic"
 	"time"
 
+	"github.com/Synternet/data-layer-sdk/pkg/options"
+	"github.com/Synternet/data-layer-sdk/pkg/service"
+	indexerimpl "github.com/Synternet/osmosis-publisher/internal/indexer"
+	"github.com/Synternet/osmosis-publisher/pkg/indexer"
+	"github.com/Synternet/osmosis-publisher/pkg/repository"
+	"github.com/Synternet/osmosis-publisher/pkg/types"
 	"github.com/nats-io/nats.go"
-	"github.com/syntropynet/data-layer-sdk/pkg/options"
-	"github.com/syntropynet/data-layer-sdk/pkg/service"
-	indexerimpl "github.com/syntropynet/osmosis-publisher/internal/indexer"
-	"github.com/syntropynet/osmosis-publisher/pkg/indexer"
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
-	"github.com/syntropynet/osmosis-publisher/pkg/types"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 
@@ -224,19 +225,18 @@ func (p *Publisher) Close() error {
 	return err
 }
 
-func (p *Publisher) getStatus() map[string]any {
+func (p *Publisher) getStatus() map[string]string {
 	p.uptimeGauge.Set(time.Since(p.startupTimestamp).Seconds())
 
-	return map[string]any{
-		"blocks":         p.blockCounter.Swap(0),
-		"unknown_events": p.evtOtherCounter.Swap(0),
-		"txs":            p.txCounter.Swap(0),
-		"pools":          p.poolCounter.Swap(0),
-		"errors":         p.errCounter.Swap(0),
-		"mempool.txs":    p.mempoolMessages.Swap(0),
-		"published":      p.publishedMessages.Swap(0),
+	return map[string]string{
+		"blocks":         strconv.FormatUint(p.blockCounter.Swap(0), 10),
+		"unknown_events": strconv.FormatUint(p.evtOtherCounter.Swap(0), 10),
+		"txs":            strconv.FormatUint(p.txCounter.Swap(0), 10),
+		"pools":          strconv.FormatUint(p.poolCounter.Swap(0), 10),
+		"errors":         strconv.FormatUint(p.errCounter.Swap(0), 10),
+		"mempool.txs":    strconv.FormatUint(p.mempoolMessages.Swap(0), 10),
+		"published":      strconv.FormatUint(p.publishedMessages.Swap(0), 10),
 	}
-
 }
 
 // DiagnosticsObtainLiquidity sequentially retrieves pool Liquidity from minHeight till maxHeight.

@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/syntropynet/osmosis-publisher/internal/repository"
-	repotypes "github.com/syntropynet/osmosis-publisher/pkg/repository"
+	"github.com/Synternet/osmosis-publisher/internal/repository"
+	repotypes "github.com/Synternet/osmosis-publisher/pkg/repository"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	_ "github.com/lib/pq"

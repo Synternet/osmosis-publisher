@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/syntropynet/osmosis-publisher/pkg/repository"
-	"github.com/syntropynet/osmosis-publisher/pkg/types"
+	"github.com/Synternet/osmosis-publisher/pkg/repository"
+	"github.com/Synternet/osmosis-publisher/pkg/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 

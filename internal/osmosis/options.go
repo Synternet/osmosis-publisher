@@ -3,8 +3,8 @@ package osmosis
 import (
 	"time"
 
-	"github.com/syntropynet/data-layer-sdk/pkg/options"
-	"github.com/syntropynet/data-layer-sdk/pkg/service"
+	"github.com/Synternet/data-layer-sdk/pkg/options"
+	"github.com/Synternet/data-layer-sdk/pkg/service"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )

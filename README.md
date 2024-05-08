@@ -1,8 +1,8 @@
 # Osmosis Publisher
 
-[![Latest release](https://img.shields.io/github/v/release/SyntropyNet/osmosis-publisher)](https://github.com/SyntropyNet/osmosis-publisher/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/synternet/osmosis-publisher)](https://github.com/Synternet/osmosis-publisher/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/SyntropyNet/osmosis-publisher/github-ci.yml?label=github-ci)](https://github.com/SyntropyNet/osmosis-publisher/actions/workflows/github-ci.yml)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/synternet/osmosis-publisher/github-ci.yml?label=github-ci)](https://github.com/Synternet/osmosis-publisher/actions/workflows/github-ci.yml)
 
 Establishes connection with Osmosis node and publishes Osmosis blockchain data to Syntropy Data Layer via NATS connection.
 
@@ -57,7 +57,7 @@ PUBLISHER_NAME=osmosis
 ```
 
 Note: instead of user `NATS_NKEY` and `NATS_JWT` single value of `NATS_ACC_NKEY` can be supplied. In Syntropy Data Layer Developer Portal
-this is called `Access Token`. See [here](https://docs.syntropynet.com/build/data-layer/developer-portal/data-layer-authentication#access-token) for more details.
+this is called `Access Token`. See [here](https://docs.synternet.com/build/data-layer/developer-portal/data-layer-authentication#access-token) for more details.
 
 ## Things to consider
 
@@ -146,13 +146,13 @@ NATS_SUB_JWT=<subscriber JWT>
 NATS_SUB_NKEY=<subscriber seed>
 ```
 
-Please go to Data Layer Developer portal and create a subscriber for [this stream](https://developer-portal.syntropynet.com/subscribe/amber1m9n5zdh7k4c6ea8ymka6wkhv92rz3smlereewu/AACX7RWALJHABWRBXTHAFVDJ6YCXRFI7LUN7WGGEYORS6ZKICPPZDZT6/191/). You can refer to this [guide](https://docs.syntropynet.com/build/data-layer/developer-portal/subscribe-to-streams).
+Please go to Data Layer Developer portal and create a subscriber for [this stream](https://developer-portal.synternet.com/subscribe/amber1m9n5zdh7k4c6ea8ymka6wkhv92rz3smlereewu/AACX7RWALJHABWRBXTHAFVDJ6YCXRFI7LUN7WGGEYORS6ZKICPPZDZT6/191/). You can refer to this [guide](https://docs.synternet.com/build/data-layer/developer-portal/subscribe-to-streams).
 
 Doing this will generate a Nkey(keep this key safe!) that should be used with Data Layer SDK User Credentials generator tool like so:
 
 ```bash
 # this will output JWT and NKEY individually. You can add -creds option to generate credentials file that will contain both.
-go run https://github.com/SyntropyNet/data-layer-sdk/cmd/gen-user@latest
+go run https://github.com/Synternet/data-layer-sdk/cmd/gen-user@latest
 ```
 
 Follow the instructions provided by this tool and obtain credentials to be used for prices stream.
@@ -199,7 +199,7 @@ docker run -it --rm --env-file=.env osmosis-publisher
 Run container with passed environment variables.
 
 ```bash
-docker run -it --rm --env-file=.env ghcr.io/syntropynet/osmosis-publisher:latest
+docker run -it --rm --env-file=.env ghcr.io/synternet/osmosis-publisher:latest
 ```
 
 ### Docker Compose
@@ -211,7 +211,7 @@ version: '3.8'
 
 services:
   osmosis-publisher:
-    image: ghcr.io/syntropynet/osmosis-publisher:latest
+    image: ghcr.io/synternet/osmosis-publisher:latest
     environment:
       - NATS_URL=nats://dal-broker
       - PREFIX=my-org
@@ -294,5 +294,5 @@ We welcome contributions from the community. Whether it's a bug report, a new fe
 If you have any questions, ideas, or simply want to connect with us, we encourage you to reach out through any of the following channels:
 
 - **Discord**: Join our vibrant community on Discord at [https://discord.com/invite/Ze7Kswye8B](https://discord.com/invite/Ze7Kswye8B). Engage in discussions, seek assistance, and collaborate with like-minded individuals.
-- **Telegram**: Connect with us on Telegram at [https://t.me/SyntropyNet](https://t.me/SyntropyNet). Stay updated with the latest news, announcements, and interact with our team members and community.
-- **Email**: If you prefer email communication, feel free to reach out to us at devrel@syntropynet.com. We're here to address your inquiries, provide support, and explore collaboration opportunities.
+- **Telegram**: Connect with us on Telegram at [https://t.me/synternet](https://t.me/synternet). Stay updated with the latest news, announcements, and interact with our team members and community.
+- **Email**: If you prefer email communication, feel free to reach out to us at devrel@synternet.com. We're here to address your inquiries, provide support, and explore collaboration opportunities.

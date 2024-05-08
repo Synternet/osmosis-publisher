@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/syntropynet/osmosis-publisher/pkg/types"
+	"github.com/Synternet/osmosis-publisher/pkg/types"
 
 	ibctypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
