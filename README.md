@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/synternet/osmosis-publisher/github-ci.yml?label=github-ci)](https://github.com/synternet/osmosis-publisher/actions/workflows/github-ci.yml)
 
-Establishes connection with Osmosis node and publishes Osmosis blockchain data to Syntropy Data Layer via NATS connection.
+Establishes connection with Osmosis node and publishes Osmosis blockchain data to Synternet Data Layer via NATS connection.
 
 ## Usage
 
@@ -56,7 +56,7 @@ TENDERMINT_API=tcp://localhost:26657
 PUBLISHER_NAME=osmosis
 ```
 
-Note: instead of user `NATS_NKEY` and `NATS_JWT` single value of `NATS_ACC_NKEY` can be supplied. In Syntropy Data Layer Developer Portal
+Note: instead of user `NATS_NKEY` and `NATS_JWT` single value of `NATS_ACC_NKEY` can be supplied. In Synternet Data Layer Developer Portal
 this is called `Access Token`. See [here](https://docs.synternet.com/build/data-layer/developer-portal/data-layer-authentication#access-token) for more details.
 
 ## Things to consider
@@ -137,7 +137,7 @@ DB_PASSWORD=password
 
 ```bash
 # This is the default value for PRICES_SUBJECT, so it can be omitted from the environment config
-PRICES_SUBJECT=syntropy_defi.price.single.OSMO
+PRICES_SUBJECT=synternet_defi.price.single.OSMO
 NATS_SUB_URL=nats://dal-broker
 
 # Please use only one of NATS_SUB_CREDS or NATS_SUB_JWT+NATS_SUB_NKEY at a time
@@ -157,10 +157,10 @@ go run github.com/synternet/data-layer-sdk/cmd/gen-user@latest
 
 Follow the instructions provided by this tool and obtain credentials to be used for prices stream.
 
-You can test the credentials with NATS cli tool to see if everything went smoothly(you should be receiving messages, at least on `syntropy_defi.price.telemetry` subject):
+You can test the credentials with NATS cli tool to see if everything went smoothly(you should be receiving messages, at least on `synternet_defi.price.telemetry` subject):
 
 ```bash
-nats --server nats://dal-broker --creds subscriber.creds sub "syntropy_defi.price.>" --headers-only
+nats --server nats://dal-broker --creds subscriber.creds sub "synternet_defi.price.>" --headers-only
 ```
 
 #### Experimental Jetstream Consumer
@@ -289,7 +289,7 @@ In order to improve certain gRPC queries, `iavl-cache-size` parameter can be inc
 
 We welcome contributions from the community. Whether it's a bug report, a new feature, or a code fix, your input is valued and appreciated.
 
-## Syntropy
+## Synternet
 
 If you have any questions, ideas, or simply want to connect with us, we encourage you to reach out through any of the following channels:
 
