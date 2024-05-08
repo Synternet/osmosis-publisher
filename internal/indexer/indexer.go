@@ -7,10 +7,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/Synternet/osmosis-publisher/pkg/indexer"
+	"github.com/Synternet/osmosis-publisher/pkg/repository"
+	"github.com/Synternet/osmosis-publisher/pkg/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/synternet/osmosis-publisher/pkg/indexer"
-	"github.com/synternet/osmosis-publisher/pkg/repository"
-	"github.com/synternet/osmosis-publisher/pkg/types"
 	"golang.org/x/sync/errgroup"
 
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"

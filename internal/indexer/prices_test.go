@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/synternet/osmosis-publisher/pkg/repository"
+	"github.com/Synternet/osmosis-publisher/pkg/repository"
 )
 
 func TestPriceMap_Set(t *testing.T) {

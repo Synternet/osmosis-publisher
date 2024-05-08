@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/Synternet/osmosis-publisher/pkg/repository"
 	_ "github.com/lib/pq"
-	"github.com/synternet/osmosis-publisher/pkg/repository"
 	"gorm.io/gorm"
 )
 

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/synternet/data-layer-sdk/pkg/options"
+	"github.com/Synternet/data-layer-sdk/pkg/options"
 )
 
 func TestWithPoolIds(t *testing.T) {

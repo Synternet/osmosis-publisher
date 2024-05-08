@@ -9,13 +9,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/Synternet/data-layer-sdk/pkg/options"
+	"github.com/Synternet/data-layer-sdk/pkg/service"
+	indexerimpl "github.com/Synternet/osmosis-publisher/internal/indexer"
+	"github.com/Synternet/osmosis-publisher/pkg/indexer"
+	"github.com/Synternet/osmosis-publisher/pkg/repository"
+	"github.com/Synternet/osmosis-publisher/pkg/types"
 	"github.com/nats-io/nats.go"
-	"github.com/synternet/data-layer-sdk/pkg/options"
-	"github.com/synternet/data-layer-sdk/pkg/service"
-	indexerimpl "github.com/synternet/osmosis-publisher/internal/indexer"
-	"github.com/synternet/osmosis-publisher/pkg/indexer"
-	"github.com/synternet/osmosis-publisher/pkg/repository"
-	"github.com/synternet/osmosis-publisher/pkg/types"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 

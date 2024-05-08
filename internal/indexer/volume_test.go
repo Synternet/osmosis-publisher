@@ -8,9 +8,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Synternet/osmosis-publisher/pkg/repository"
+	"github.com/Synternet/osmosis-publisher/pkg/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/synternet/osmosis-publisher/pkg/repository"
-	"github.com/synternet/osmosis-publisher/pkg/types"
 )
 
 func TestIndexer_fetchVolumeValuesPerBlockRange(t *testing.T) {

@@ -4,10 +4,10 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/Synternet/osmosis-publisher/internal/repository"
+	"github.com/Synternet/osmosis-publisher/internal/repository/sqlite"
+	repotypes "github.com/Synternet/osmosis-publisher/pkg/repository"
 	_ "github.com/lib/pq"
-	"github.com/synternet/osmosis-publisher/internal/repository"
-	"github.com/synternet/osmosis-publisher/internal/repository/sqlite"
-	repotypes "github.com/synternet/osmosis-publisher/pkg/repository"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	IBCTypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"

@@ -1,8 +1,8 @@
 # Osmosis Publisher
 
-[![Latest release](https://img.shields.io/github/v/release/synternet/osmosis-publisher)](https://github.com/synternet/osmosis-publisher/releases/latest)
+[![Latest release](https://img.shields.io/github/v/release/synternet/osmosis-publisher)](https://github.com/Synternet/osmosis-publisher/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/synternet/osmosis-publisher/github-ci.yml?label=github-ci)](https://github.com/synternet/osmosis-publisher/actions/workflows/github-ci.yml)
+[![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/synternet/osmosis-publisher/github-ci.yml?label=github-ci)](https://github.com/Synternet/osmosis-publisher/actions/workflows/github-ci.yml)
 
 Establishes connection with Osmosis node and publishes Osmosis blockchain data to Syntropy Data Layer via NATS connection.
 
@@ -152,7 +152,7 @@ Doing this will generate a Nkey(keep this key safe!) that should be used with Da
 
 ```bash
 # this will output JWT and NKEY individually. You can add -creds option to generate credentials file that will contain both.
-go run https://github.com/synternet/data-layer-sdk/cmd/gen-user@latest
+go run https://github.com/Synternet/data-layer-sdk/cmd/gen-user@latest
 ```
 
 Follow the instructions provided by this tool and obtain credentials to be used for prices stream.

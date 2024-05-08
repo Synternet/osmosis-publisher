@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/synternet/osmosis-publisher/pkg/types"
+	"github.com/Synternet/osmosis-publisher/pkg/types"
 
 	cltypes "github.com/osmosis-labs/osmosis/v24/x/concentrated-liquidity/types"
 	wasmtypes "github.com/osmosis-labs/osmosis/v24/x/cosmwasmpool/types"
