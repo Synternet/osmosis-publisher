@@ -152,7 +152,7 @@ Doing this will generate a Nkey(keep this key safe!) that should be used with Da
 
 ```bash
 # this will output JWT and NKEY individually. You can add -creds option to generate credentials file that will contain both.
-go run https://github.com/synternet/data-layer-sdk/cmd/gen-user@latest
+go run github.com/synternet/data-layer-sdk/cmd/gen-user@latest
 ```
 
 Follow the instructions provided by this tool and obtain credentials to be used for prices stream.
