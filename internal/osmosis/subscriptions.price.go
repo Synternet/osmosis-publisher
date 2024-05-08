@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Synternet/data-layer-sdk/pkg/service"
-	"github.com/Synternet/price-publisher/pkg/cmc"
+	"github.com/synternet/data-layer-sdk/pkg/service"
+	"github.com/synternet/price-publisher/pkg/cmc"
 )
 
 func (p *Publisher) subscribePriceFeed() error {

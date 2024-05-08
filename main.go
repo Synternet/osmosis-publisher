@@ -1,9 +1,9 @@
 package main
 
 import (
-	_ "github.com/Synternet/data-layer-sdk/pkg/dotenv"
+	_ "github.com/synternet/data-layer-sdk/pkg/dotenv"
 
-	"github.com/Synternet/osmosis-publisher/cmd"
+	"github.com/synternet/osmosis-publisher/cmd"
 )
 
 func main() {

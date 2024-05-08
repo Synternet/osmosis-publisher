@@ -10,9 +10,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/Synternet/osmosis-publisher/pkg/repository"
-	"github.com/Synternet/osmosis-publisher/pkg/types"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/synternet/osmosis-publisher/pkg/repository"
+	"github.com/synternet/osmosis-publisher/pkg/types"
 
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"

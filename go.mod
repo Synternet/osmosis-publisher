@@ -1,4 +1,4 @@
-module github.com/Synternet/osmosis-publisher
+module github.com/synternet/osmosis-publisher
 
 go 1.21
 
@@ -15,8 +15,8 @@ require (
 	github.com/osmosis-labs/osmosis/v24 v24.0.4
 	github.com/prometheus/client_golang v1.19.0
 	github.com/spf13/cobra v1.8.0
-	github.com/Synternet/data-layer-sdk v0.3.0
-	github.com/Synternet/price-publisher v0.3.0
+	github.com/synternet/data-layer-sdk v0.3.0
+	github.com/synternet/price-publisher v0.3.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
 	golang.org/x/sync v0.6.0
 	google.golang.org/grpc v1.62.1
