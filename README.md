@@ -19,15 +19,54 @@ Getting usage help.
 ```bash
 ./build/osmosis-publisher --help
 ```
+# Required variables: 
+To enable the publishing features, you must set the following environment variables before starting the `osmosis` publisher. These variables configure the NATS connection and define the publishing settings:
+
+  - **NATS URL**  
+    `NATS_URL=nats://dal-broker`
+
+  - **NATS NKey**  
+    `NATS_NKEY=SA..BC`
+
+  - **NATS JWT**  
+    `NATS_JWT=eyJ0e...aW`
+
+  - **Publisher Prefix**
+    `PUB_PREFIX=my-org`
+
+  - **Publisher Name**
+    `PUB_NAME=osmosis`
+
+  - **NATS Subscriber URL**
+    `NATS_SUB_URL=nats://dal-broker`
+
+  - **NATS Subscriber NKey**
+    `NATS_SUB_NKEY=SA..BC`
+
+  - **NATS Subscriber JWT**
+    `NATS_SUB_JWT=eyJ0e...aW`
+
+  - **Application API Endpoint**
+    `APP_API=http://localhost:1317`
+
+  - **gRPC API Endpoint**
+    `GRPC_API=localhost:9090`
+
+  - **Tendermint API Endpoint**
+    `TENDERMINT_API=tcp://localhost:26657`
+
 
 Running executable with flags.
 
 ```bash
 ./build/osmosis-publisher \
   --nats-url nats://dal-broker \
+  --nats-sub-url nats://dal-broker \
   --prefix my-org \
   --nats-nkey SA..BC \
   --nats-jwt eyJ0e...aW \
+  --nats-sub-nkey SA..BC \
+  --nats-sub-jwt eyJ0e...aW \
   --db-host db.sqlite \
   --db-name sqlite
   start \
@@ -45,9 +84,12 @@ Any flag can be used as environment variables by updating flag to be `UPPERCASE`
 
 // .env file content
 NATS_URL=nats://dal-broker
+NATS_SUB_URL=nats://dal-broker
 PREFIX=my-org
 NATS_NKEY=SA..BC
 NATS_JWT=eyJ0e...aW
+NATS_SUB_NKEY=SA..BC
+NATS_SUB_JWT=eyJ0e...aW
 DB_HOST=db.sqlite
 DB_NAME=sqlite
 APP_API=http://localhost:1317
