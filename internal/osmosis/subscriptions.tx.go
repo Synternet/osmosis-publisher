@@ -51,6 +51,10 @@ func (p *Publisher) handleTransaction(data tmtypes.EventDataTx, queueSize int) {
 		tx,
 		"tx",
 	)
+
+	// Publish to Unix socket
+	p.publishToUnixSocket(tx)
+
 	p.messagesCounter.Add(1)
 	p.Logger.Debug("Transaction", "txID", tx.TxID, "names", extractTxMessageNames(tx), "queue_size", queueSize)
 }

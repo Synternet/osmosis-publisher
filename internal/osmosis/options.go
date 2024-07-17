@@ -18,6 +18,7 @@ var (
 	BlocksToIndexParam = "bti"
 	PriceSubjectParam  = "prices"
 	MetricsParam       = "metrics"
+	SocketAddrParam    = "socket"
 )
 
 func WithTendermintAPI(url string) options.Option {
@@ -105,4 +106,14 @@ func WithMetrics(url string) options.Option {
 
 func (p *Publisher) MetricsURL() string {
 	return options.Param(p.Options, MetricsParam, "")
+}
+
+func WithSocketAddr(url string) options.Option {
+	return func(o *options.Options) {
+		service.WithParam(SocketAddrParam, url)(o)
+	}
+}
+
+func (p *Publisher) SocketAddr() string {
+	return options.Param(p.Options, SocketAddrParam, "/home/osmosis/wasm-socket")
 }

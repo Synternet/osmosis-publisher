@@ -19,6 +19,7 @@ var (
 	flagRPCAPI        *string
 	flagGRPCAPI       *string
 	flagPricesSubject *string
+	flagSocketAddr    *string
 	flagBlocks        *uint64
 	metricsUrl        *string
 )
@@ -60,6 +61,7 @@ var startCmd = &cobra.Command{
 			osmosis.WithBlocksToIndex(*flagBlocks),
 			osmosis.WithPriceSubject(*flagPricesSubject),
 			osmosis.WithMetrics(*metricsUrl),
+			osmosis.WithSocketAddr(*flagSocketAddr),
 		)
 		if publisher == nil {
 			return
@@ -94,6 +96,7 @@ func init() {
 		OSMOSIS_POOLS      = "POOL_IDS"
 		OSMOSIS_BLOCKS     = "BLOCKS_TO_INDEX"
 		PRICES_SUBJECT     = "PRICES_SUBJECT"
+		SOCKET_ADDR        = "SOCKET"
 	)
 
 	setDefault(OSMOSIS_TENDERMINT, "tcp://localhost:26657")
@@ -112,6 +115,8 @@ func init() {
 	flagGRPCAPI = startCmd.Flags().String("grpc-api", os.Getenv(OSMOSIS_GRPC), "Full address to the Applications gRPC")
 
 	flagPricesSubject = startCmd.Flags().String("prices-subject", os.Getenv(PRICES_SUBJECT), "Subject for prices feed to subscribe to")
+
+	flagSocketAddr = startCmd.Flags().String("socket", os.Getenv(SOCKET_ADDR), "Socket addr to publish data")
 
 	pools := SplitAndTrimEmpty(os.Getenv(OSMOSIS_POOLS), ",", " \t\r\n\b")
 	dp := make([]int64, len(pools))

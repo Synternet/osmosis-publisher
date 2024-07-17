@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"strconv"
 	"sync/atomic"
@@ -40,6 +41,9 @@ type Publisher struct {
 	poolCounter       atomic.Uint64
 	errCounter        atomic.Uint64
 	evtOtherCounter   atomic.Uint64
+
+	UnixSocketPath string
+	UnixSocketConn net.Conn
 
 	// Total counters
 	blocksCounter       prometheus.Counter
