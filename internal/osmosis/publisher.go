@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
 	"sync/atomic"
@@ -12,8 +11,8 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/synternet/data-layer-sdk/pkg/options"
-	"github.com/synternet/data-layer-sdk/pkg/service"
 	indexerimpl "github.com/synternet/osmosis-publisher/internal/indexer"
+	"github.com/synternet/osmosis-publisher/pkg/dtlWithSocket"
 	"github.com/synternet/osmosis-publisher/pkg/indexer"
 	"github.com/synternet/osmosis-publisher/pkg/repository"
 	"github.com/synternet/osmosis-publisher/pkg/types"
@@ -26,7 +25,7 @@ import (
 )
 
 type Publisher struct {
-	*service.Service
+	*dtlWithSocket.Service
 	rpc       *rpc
 	db        repository.Repository
 	indexer   indexer.Indexer
@@ -41,9 +40,6 @@ type Publisher struct {
 	poolCounter       atomic.Uint64
 	errCounter        atomic.Uint64
 	evtOtherCounter   atomic.Uint64
-
-	UnixSocketPath string
-	UnixSocketConn net.Conn
 
 	// Total counters
 	blocksCounter       prometheus.Counter
@@ -61,8 +57,9 @@ type Publisher struct {
 }
 
 func New(db repository.Repository, opts ...options.Option) (*Publisher, error) {
+	dtlService := dtlWithSocket.NewNatsAndSocketConn()
 	ret := &Publisher{
-		Service: &service.Service{},
+		Service: dtlService,
 		db:      db,
 		blocksCounter: promauto.NewCounter(prometheus.CounterOpts{
 			Name: "osmosis_publisher_blocks",
