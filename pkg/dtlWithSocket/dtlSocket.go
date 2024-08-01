@@ -72,7 +72,11 @@ func (n *Service) PublishToUnixSocket(msg any) {
 		return
 	}
 
-	if _, err = (*n.Socket).Write(data); err != nil {
+	// Prefix with the length
+	lengthPrefix := fmt.Sprintf("%010d", len(data))
+	fullMessage := append([]byte(lengthPrefix), data...)
+
+	if _, err = (*n.Socket).Write(fullMessage); err != nil {
 		log.Printf("Error writing to Unix socket: %v", err)
 		n.closeUnixSocket()
 	}
