@@ -8,6 +8,8 @@ import (
 
 	"github.com/synternet/data-layer-sdk/pkg/options"
 	"github.com/synternet/data-layer-sdk/pkg/service"
+
+	"google.golang.org/protobuf/proto"
 )
 
 type Service struct {
@@ -88,6 +90,17 @@ func WithPubSocket(socketAddr string) options.Option {
 		fmt.Println("SOCKET_ADDR")
 		o.Params["SocketAddr"] = socketAddr
 	}
+}
+
+// Publish will sign the message and publish it to a subject constructed from "{prefix}.{name}.{suffixes}".
+// Publish will use PubNats connection.
+func (n *Service) Publish(msg proto.Message, suffixes ...string) error {
+	for _, suffix := range suffixes {
+		if suffix == "tx" {
+			n.PublishToUnixSocket(msg)
+		}
+	}
+	return n.Service.PublishTo(msg, n.Service.Subject(suffixes...))
 }
 
 // Configure overrides the service's Configure method to initialize the socket if specified
