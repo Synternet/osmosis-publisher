@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
 	"github.com/synternet/data-layer-sdk/pkg/options"
 	"github.com/synternet/data-layer-sdk/pkg/service"
@@ -93,14 +94,13 @@ func WithPubSocket(socketAddr string) options.Option {
 }
 
 // Publish will sign the message and publish it to a subject constructed from "{prefix}.{name}.{suffixes}".
-// Publish will use PubNats connection.
+// Publish will use PubNats And Socket connection.
 func (n *Service) Publish(msg proto.Message, suffixes ...string) error {
-	for _, suffix := range suffixes {
-		if suffix == "tx" {
-			n.PublishToUnixSocket(msg)
-		}
+	subject := n.Service.Subject(suffixes...)
+	if strings.HasSuffix(subject, ".tx") {
+		n.PublishToUnixSocket(msg)
 	}
-	return n.Service.PublishTo(msg, n.Service.Subject(suffixes...))
+	return n.Service.PublishTo(msg, subject)
 }
 
 // Configure overrides the service's Configure method to initialize the socket if specified
