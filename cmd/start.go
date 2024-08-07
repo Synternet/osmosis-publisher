@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/synternet/data-layer-sdk/pkg/service"
 	"github.com/synternet/osmosis-publisher/internal/osmosis"
+	"github.com/synternet/osmosis-publisher/pkg/dtlWithSocket"
 )
 
 var (
@@ -20,6 +21,7 @@ var (
 	flagGRPCAPI       *string
 	flagPricesSubject *string
 	flagBlocks        *uint64
+	flagSocketAddr    *string
 	metricsUrl        *string
 )
 
@@ -40,7 +42,6 @@ var startCmd = &cobra.Command{
 			}
 			poolIds[i] = uint64(id)
 		}
-
 		publisher, err := osmosis.New(
 			database,
 			service.WithContext(ctx),
@@ -53,6 +54,7 @@ var startCmd = &cobra.Command{
 			service.WithNKeySeed(*flagNkeyPub),
 			service.WithPemPrivateKey(*flagPemFile),
 			service.WithVerbose(*flagVerbose),
+			dtlWithSocket.WithPubSocket(*flagSocketAddr),
 			osmosis.WithTendermintAPI(*flagTendermintAPI),
 			osmosis.WithRPCAPI(*flagRPCAPI),
 			osmosis.WithGRPCAPI(*flagGRPCAPI),
@@ -60,6 +62,7 @@ var startCmd = &cobra.Command{
 			osmosis.WithBlocksToIndex(*flagBlocks),
 			osmosis.WithPriceSubject(*flagPricesSubject),
 			osmosis.WithMetrics(*metricsUrl),
+			osmosis.WithSocketAddr(*flagSocketAddr),
 		)
 		if publisher == nil {
 			return
@@ -94,6 +97,7 @@ func init() {
 		OSMOSIS_POOLS      = "POOL_IDS"
 		OSMOSIS_BLOCKS     = "BLOCKS_TO_INDEX"
 		PRICES_SUBJECT     = "PRICES_SUBJECT"
+		SOCKET_ADDR        = "SOCKET_ADDR"
 	)
 
 	setDefault(OSMOSIS_TENDERMINT, "tcp://localhost:26657")
@@ -112,6 +116,8 @@ func init() {
 	flagGRPCAPI = startCmd.Flags().String("grpc-api", os.Getenv(OSMOSIS_GRPC), "Full address to the Applications gRPC")
 
 	flagPricesSubject = startCmd.Flags().String("prices-subject", os.Getenv(PRICES_SUBJECT), "Subject for prices feed to subscribe to")
+
+	flagSocketAddr = startCmd.Flags().String("socket", os.Getenv(SOCKET_ADDR), "Socket addr to publish data")
 
 	pools := SplitAndTrimEmpty(os.Getenv(OSMOSIS_POOLS), ",", " \t\r\n\b")
 	dp := make([]int64, len(pools))

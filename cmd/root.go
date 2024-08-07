@@ -219,4 +219,5 @@ func init() {
 	}
 
 	flagTelemetryPeriod = rootCmd.PersistentFlags().DurationP("telemetry-period", "T", telemetryPeriod, "Telemetry report period")
+
 }
