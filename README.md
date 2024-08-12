@@ -272,6 +272,73 @@ volumes:
     external: true
 ```
 
+### Docker Compose With Wasmlisher 
+
+`docker-compose.yml` file.
+
+```yaml
+version: '3.8'
+
+services:
+  osmosis-publisher:
+    image: ghcr.io/synternet/osmosis-publisher:latest
+    environment:
+      - NATS_URL=nats://dal-broker
+      - PREFIX=my-org
+      - NATS_NKEY=SA..BC
+      - NATS_JWT=eyJ0e...aW
+      - APP_API=http://localhost:1317
+      - GRPC_API=localhost:9090
+      - TENDERMINT_API=tcp://localhost:26657
+      - PUBLISHER_NAME=osmosis
+      - DB_HOST=db.sqlite
+      - DB_NAME=sqlite
+      - SOCKET_ADDR=/socket/osmosis-publisher.socket
+    volumes:
+      - osmodata:/home/app/db.sqlite
+      - shared_sockets:/socket
+    restart: on-failure
+
+  wasmlisher:
+    image: ghcr.io/synternet/wasmlisher:latest
+    environment:
+      - NATS_ACC_NKEY=SAA..V4
+      - NATS_HOSTS_PUB=nats://dal-broker
+      - NATS_HOSTS_SUB=nats://dal-broker
+      - NATS_SUB_JWT=ey..
+      - NATS_SUB_NKEY=SUA..7Y
+      - NAME=wasmlisher
+      - CONFIG=/config/config.json
+      - CONFIG_INTERVAL=30
+    volumes:
+      - shared_sockets:/socket
+      - /root/wasmlisher/config.json:/config/config.json
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+    restart: on-failure
+
+volumes:
+  osmodata:
+    external: true
+  shared_sockets:
+```
+
+config.json example:
+```json
+[
+  {
+    "file": "https://orange-wrong-snail-868.mypinata.cloud/ipfs/QmaKkJvcsEgxfjn3x1S33Lrma9jAL9Hru4nJVkgmPNBgL2",
+    "input": "/socket/osmosis-publisher.socket",
+    "input_type": "unix_socket",
+    "output": "wasmlisher.osmosis.swap",
+    "type": "ipfs"
+  }
+]
+```
+
+
 ## Osmosis Full Node
 
 You can refer to the official [documentation](https://docs.osmosis.zone/overview/validate/joining-mainnet) for instructions how to run a full node in Mainnet.
