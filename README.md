@@ -300,7 +300,7 @@ services:
     restart: on-failure
 
   wasmlisher:
-    image: ghcr.io/synternet/wasmlisher:latest
+    image: ghcr.io/synternet/wasmlisher:v0.1.0
     environment:
       - NATS_ACC_NKEY=SAA..V4
       - NATS_HOSTS_PUB=nats://dal-broker
